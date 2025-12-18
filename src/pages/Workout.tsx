@@ -122,21 +122,21 @@ export function Workout() {
 
   if (!currentDay) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>No workout day found</p>
+      <div className="min-h-screen flex items-center justify-center bg-dark-950">
+        <p className="text-dark-400">No workout day found</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pb-24 pt-safe-top bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen pb-24 pt-safe-top bg-gray-50 dark:bg-dark-950">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 safe-area-top">
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-dark-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-dark-700/50 safe-area-top">
         <div className="px-4 py-3">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate('/')}
-              className="p-2 -ml-2 touch-manipulation"
+              className="p-2 -ml-2 touch-manipulation text-dark-600 dark:text-dark-300 hover:text-brand-500 transition-colors"
             >
               <ArrowLeft size={24} />
             </button>
@@ -145,17 +145,17 @@ export function Workout() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigateDay('prev')}
-                className="p-2 touch-manipulation"
+                className="p-2 touch-manipulation text-dark-500 hover:text-brand-500 transition-colors"
                 disabled={!!currentWorkout}
               >
                 <ChevronLeft size={20} className={currentWorkout ? 'opacity-30' : ''} />
               </button>
-              <span className="font-bold text-lg min-w-[140px] text-center">
+              <span className="font-bold text-lg min-w-[140px] text-center text-dark-900 dark:text-white">
                 {currentDay.name}
               </span>
               <button
                 onClick={() => navigateDay('next')}
-                className="p-2 touch-manipulation"
+                className="p-2 touch-manipulation text-dark-500 hover:text-brand-500 transition-colors"
                 disabled={!!currentWorkout}
               >
                 <ChevronRight size={20} className={currentWorkout ? 'opacity-30' : ''} />
@@ -165,7 +165,7 @@ export function Workout() {
             {currentWorkout ? (
               <button
                 onClick={() => setShowCancelConfirm(true)}
-                className="p-2 text-red-500 touch-manipulation"
+                className="p-2 text-red-500 touch-manipulation hover:text-red-400 transition-colors"
               >
                 <X size={24} />
               </button>
@@ -177,16 +177,16 @@ export function Workout() {
           {/* Progress bar */}
           {currentWorkout && (
             <div className="mt-3">
-              <div className="flex justify-between text-sm text-slate-500 dark:text-slate-400 mb-1">
-                <span>{completedSets}/{totalSets} sets</span>
+              <div className="flex justify-between text-sm text-dark-500 dark:text-dark-400 mb-1">
+                <span className="font-medium">{completedSets}/{totalSets} sets</span>
                 <span className="flex items-center gap-1">
                   <Clock size={14} />
                   {durationMinutes} min
                 </span>
               </div>
-              <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-dark-200 dark:bg-dark-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-primary-500 rounded-full transition-all duration-300"
+                  className="h-full bg-gradient-brand rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -199,21 +199,21 @@ export function Workout() {
         {/* Not started state */}
         {!currentWorkout && (
           <div className="text-center py-8">
-            <h2 className="text-xl font-bold mb-2">{currentDay.name}</h2>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">
+            <h2 className="text-xl font-bold mb-2 text-dark-900 dark:text-white">{currentDay.name}</h2>
+            <p className="text-dark-500 dark:text-dark-400 mb-6">
               {currentDay.exercises.length} exercises • {totalSets} total sets
             </p>
 
             <button
               onClick={handleStartWorkout}
-              className="btn btn-primary text-lg px-8"
+              className="btn-brand text-lg px-8"
             >
               Start Workout
             </button>
 
             {/* Exercise preview */}
             <div className="mt-8 text-left">
-              <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
+              <h3 className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide mb-3">
                 Exercises
               </h3>
               <div className="space-y-2">
@@ -221,9 +221,9 @@ export function Workout() {
                   const exercise = getExercise(we.exerciseId);
                   if (!exercise) return null;
                   return (
-                    <div key={we.exerciseId} className="card p-3">
-                      <p className="font-semibold">{exercise.name}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <div key={we.exerciseId} className="card p-4">
+                      <p className="font-semibold text-dark-900 dark:text-white">{exercise.name}</p>
+                      <p className="text-sm text-dark-500 dark:text-dark-400">
                         {we.targetSets} sets × {we.targetReps}
                       </p>
                     </div>
@@ -263,7 +263,7 @@ export function Workout() {
             {/* Complete workout button */}
             <button
               onClick={() => setShowCompleteConfirm(true)}
-              className="w-full btn btn-success flex items-center justify-center gap-2 mt-6"
+              className="w-full btn-success flex items-center justify-center gap-2 mt-6"
             >
               <Check size={24} />
               Complete Workout
@@ -274,8 +274,8 @@ export function Workout() {
 
       {/* Rest Timer Modal */}
       {showRestTimer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 m-4 max-w-sm w-full">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-dark-800 rounded-3xl p-6 m-4 max-w-sm w-full shadow-2xl border border-dark-200 dark:border-dark-700">
             <RestTimer
               defaultSeconds={restSeconds}
               onComplete={() => {
@@ -284,7 +284,7 @@ export function Workout() {
             />
             <button
               onClick={() => setShowRestTimer(false)}
-              className="w-full mt-4 btn btn-secondary"
+              className="w-full mt-4 btn-secondary"
             >
               Dismiss
             </button>
@@ -302,22 +302,22 @@ export function Workout() {
 
       {/* Cancel Confirm Modal */}
       {showCancelConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 m-4 max-w-sm w-full">
-            <h3 className="text-xl font-bold mb-2">Cancel Workout?</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-dark-800 rounded-3xl p-6 m-4 max-w-sm w-full shadow-2xl border border-dark-200 dark:border-dark-700">
+            <h3 className="text-xl font-bold mb-2 text-dark-900 dark:text-white">Cancel Workout?</h3>
+            <p className="text-dark-500 dark:text-dark-400 mb-6">
               Are you sure you want to cancel this workout? All progress will be lost.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowCancelConfirm(false)}
-                className="flex-1 btn btn-secondary"
+                className="flex-1 btn-secondary"
               >
                 Keep Going
               </button>
               <button
                 onClick={handleCancelWorkout}
-                className="flex-1 btn bg-red-500 text-white hover:bg-red-600"
+                className="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/30 transition-all duration-200"
               >
                 Cancel Workout
               </button>
@@ -328,10 +328,10 @@ export function Workout() {
 
       {/* Complete Confirm Modal */}
       {showCompleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 m-4 max-w-sm w-full">
-            <h3 className="text-xl font-bold mb-2">Complete Workout?</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-dark-800 rounded-3xl p-6 m-4 max-w-sm w-full shadow-2xl border border-dark-200 dark:border-dark-700">
+            <h3 className="text-xl font-bold mb-2 text-dark-900 dark:text-white">Complete Workout?</h3>
+            <p className="text-dark-500 dark:text-dark-400 mb-2">
               {completedSets}/{totalSets} sets completed
             </p>
             {completedSets < totalSets && (
@@ -342,13 +342,13 @@ export function Workout() {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowCompleteConfirm(false)}
-                className="flex-1 btn btn-secondary"
+                className="flex-1 btn-secondary"
               >
                 Continue
               </button>
               <button
                 onClick={handleCompleteWorkout}
-                className="flex-1 btn btn-success"
+                className="flex-1 btn-success"
               >
                 Complete
               </button>

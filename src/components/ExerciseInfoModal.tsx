@@ -1,4 +1,4 @@
-import { X, Target, Wrench, Lightbulb } from 'lucide-react';
+import { X, Target, Dumbbell, Lightbulb } from 'lucide-react';
 import type { Exercise } from '../types';
 
 interface ExerciseInfoModalProps {
@@ -11,38 +11,40 @@ export function ExerciseInfoModal({ exercise, onClose }: ExerciseInfoModalProps)
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-dark-950/60 backdrop-blur-sm fade-in"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-t-3xl p-6 pb-safe-bottom slide-up max-h-[85vh] overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-white dark:bg-surface-dark rounded-t-4xl p-6 pb-safe-bottom slide-up max-h-[85vh] overflow-y-auto">
         {/* Handle */}
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1 bg-slate-300 dark:bg-slate-600 rounded-full" />
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-dark-200 dark:bg-dark-700 rounded-full" />
 
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-slate-100 dark:bg-slate-700 touch-manipulation"
+          className="absolute top-5 right-5 w-10 h-10 rounded-xl bg-dark-100 dark:bg-dark-800 flex items-center justify-center touch-manipulation active:scale-95 transition-transform"
         >
-          <X size={20} />
+          <X size={20} className="text-dark-500" />
         </button>
 
         {/* Content */}
-        <div className="mt-4">
-          <h2 className="text-2xl font-bold mb-4">{exercise.name}</h2>
+        <div className="mt-6">
+          <h2 className="text-2xl font-bold text-dark-900 dark:text-white mb-6">{exercise.name}</h2>
 
           {/* Muscle groups */}
           <div className="mb-6">
-            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
-              <Target size={18} />
-              <span className="text-sm font-semibold uppercase">Target Muscles</span>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+                <Target size={16} className="text-brand-500" />
+              </div>
+              <span className="text-sm font-bold text-dark-500 uppercase tracking-wider">Target Muscles</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {exercise.muscleGroups.map((muscle) => (
                 <span
                   key={muscle}
-                  className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium capitalize"
+                  className="badge badge-brand capitalize"
                 >
                   {muscle}
                 </span>
@@ -52,32 +54,44 @@ export function ExerciseInfoModal({ exercise, onClose }: ExerciseInfoModalProps)
 
           {/* Equipment */}
           <div className="mb-6">
-            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-2">
-              <Wrench size={18} />
-              <span className="text-sm font-semibold uppercase">Equipment</span>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+                <Dumbbell size={16} className="text-accent-500" />
+              </div>
+              <span className="text-sm font-bold text-dark-500 uppercase tracking-wider">Equipment</span>
             </div>
-            <span className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-full text-sm font-medium capitalize">
+            <span className="px-4 py-2 bg-dark-100 dark:bg-dark-800 rounded-xl text-sm font-semibold capitalize text-dark-700 dark:text-dark-300">
               {exercise.equipment}
             </span>
           </div>
 
           {/* Form tips */}
           <div>
-            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-3">
-              <Lightbulb size={18} />
-              <span className="text-sm font-semibold uppercase">Form Tips</span>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-success-100 dark:bg-success-900/30 flex items-center justify-center">
+                <Lightbulb size={16} className="text-success-500" />
+              </div>
+              <span className="text-sm font-bold text-dark-500 uppercase tracking-wider">Form Tips</span>
             </div>
             <ul className="space-y-3">
               {exercise.formTips.map((tip, index) => (
-                <li key={index} className="flex gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400 flex items-center justify-center text-sm font-bold">
+                <li key={index} className="flex gap-4 p-3 rounded-2xl bg-dark-50 dark:bg-dark-800/50">
+                  <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-success text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-success-500/20">
                     {index + 1}
-                  </span>
-                  <span className="text-slate-700 dark:text-slate-300">{tip}</span>
+                  </div>
+                  <span className="text-dark-700 dark:text-dark-300 text-sm leading-relaxed pt-0.5">{tip}</span>
                 </li>
               ))}
             </ul>
           </div>
+
+          {/* Close button at bottom */}
+          <button
+            onClick={onClose}
+            className="w-full mt-6 btn btn-secondary"
+          >
+            Got it
+          </button>
         </div>
       </div>
     </div>

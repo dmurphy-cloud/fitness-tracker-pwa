@@ -74,12 +74,15 @@ export function Progress() {
         {
           label: 'Weight (kg)',
           data: sortedEntries.map(e => e.weight),
-          borderColor: 'rgb(99, 102, 241)',
-          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          borderColor: 'rgb(6, 182, 212)',
+          backgroundColor: 'rgba(6, 182, 212, 0.1)',
           fill: true,
           tension: 0.3,
           pointRadius: 6,
           pointHoverRadius: 8,
+          pointBackgroundColor: 'rgb(6, 182, 212)',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
         },
         // Goal line
         {
@@ -102,11 +105,13 @@ export function Progress() {
         display: false,
       },
       tooltip: {
-        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        backgroundColor: 'rgba(15, 23, 42, 0.95)',
         titleColor: '#fff',
         bodyColor: '#fff',
         padding: 12,
-        cornerRadius: 8,
+        cornerRadius: 12,
+        borderColor: 'rgba(6, 182, 212, 0.3)',
+        borderWidth: 1,
       },
     },
     scales: {
@@ -117,6 +122,7 @@ export function Progress() {
         ticks: {
           maxRotation: 0,
           maxTicksLimit: 6,
+          color: '#64748b',
         },
       },
       y: {
@@ -124,6 +130,9 @@ export function Progress() {
         max: Math.max(...filteredEntries.map(e => e.weight), profile?.currentWeight || 94) + 2,
         grid: {
           color: 'rgba(148, 163, 184, 0.1)',
+        },
+        ticks: {
+          color: '#64748b',
         },
       },
     },
@@ -175,14 +184,14 @@ export function Progress() {
   };
 
   return (
-    <div className="min-h-screen pb-24 pt-safe-top">
+    <div className="min-h-screen pb-24 pt-safe-top bg-gray-50 dark:bg-dark-950">
       {/* Header */}
-      <header className="px-4 py-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 safe-area-top">
+      <header className="px-4 py-4 bg-white/80 dark:bg-dark-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-dark-700/50 safe-area-top">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">Progress</h1>
+          <h1 className="text-2xl font-bold text-dark-900 dark:text-white">Progress</h1>
           <button
             onClick={() => setShowAddWeight(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl active:scale-95 transition-transform touch-manipulation"
+            className="flex items-center gap-2 btn-brand"
           >
             <Plus size={18} />
             <span className="font-medium">Log Weight</span>
@@ -195,10 +204,10 @@ export function Progress() {
             <button
               key={range}
               onClick={() => setTimeRange(range)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors touch-manipulation
+              className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all touch-manipulation
                 ${timeRange === range
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                  ? 'bg-gradient-brand text-white shadow-lg shadow-brand-500/25'
+                  : 'bg-dark-100 dark:bg-dark-700 text-dark-600 dark:text-dark-400 hover:bg-dark-200 dark:hover:bg-dark-600'
                 }
               `}
             >
@@ -212,8 +221,10 @@ export function Progress() {
         {/* Weight Chart */}
         <section className="card p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Scale size={20} className="text-primary-600 dark:text-primary-400" />
-            <h2 className="font-bold">Weight Trend</h2>
+            <div className="w-8 h-8 rounded-lg bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center">
+              <Scale size={18} className="text-brand-600 dark:text-brand-400" />
+            </div>
+            <h2 className="font-bold text-dark-900 dark:text-white">Weight Trend</h2>
           </div>
 
           {filteredEntries.length > 0 ? (
@@ -221,13 +232,13 @@ export function Progress() {
               <Line data={chartData} options={chartOptions} />
             </div>
           ) : (
-            <div className="h-64 flex items-center justify-center text-slate-500 dark:text-slate-400">
+            <div className="h-64 flex items-center justify-center text-dark-500 dark:text-dark-400">
               <div className="text-center">
                 <Scale size={48} className="mx-auto mb-2 opacity-50" />
                 <p>No weight entries yet</p>
                 <button
                   onClick={() => setShowAddWeight(true)}
-                  className="mt-2 text-primary-600 dark:text-primary-400 font-medium"
+                  className="mt-2 text-brand-600 dark:text-brand-400 font-semibold hover:text-brand-700 dark:hover:text-brand-300 transition-colors"
                 >
                   Add your first entry
                 </button>
@@ -240,22 +251,22 @@ export function Progress() {
         {stats && (
           <div className="grid grid-cols-2 gap-3">
             <div className="card p-4">
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Current</p>
-              <p className="text-2xl font-bold">{stats.current.toFixed(1)} kg</p>
+              <p className="text-sm text-dark-500 dark:text-dark-400 mb-1">Current</p>
+              <p className="text-2xl font-bold text-dark-900 dark:text-white">{stats.current.toFixed(1)} kg</p>
             </div>
             <div className="card p-4">
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Change</p>
-              <p className={`text-2xl font-bold ${stats.change < 0 ? 'text-success-500' : stats.change > 0 ? 'text-red-500' : ''}`}>
+              <p className="text-sm text-dark-500 dark:text-dark-400 mb-1">Change</p>
+              <p className={`text-2xl font-bold ${stats.change < 0 ? 'text-success-500' : stats.change > 0 ? 'text-red-500' : 'text-dark-900 dark:text-white'}`}>
                 {stats.change > 0 ? '+' : ''}{stats.change.toFixed(1)} kg
               </p>
             </div>
             <div className="card p-4">
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Lowest</p>
-              <p className="text-2xl font-bold">{stats.lowest.toFixed(1)} kg</p>
+              <p className="text-sm text-dark-500 dark:text-dark-400 mb-1">Lowest</p>
+              <p className="text-2xl font-bold text-dark-900 dark:text-white">{stats.lowest.toFixed(1)} kg</p>
             </div>
             <div className="card p-4">
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">To Goal</p>
-              <p className="text-2xl font-bold">
+              <p className="text-sm text-dark-500 dark:text-dark-400 mb-1">To Goal</p>
+              <p className="text-2xl font-bold text-brand-600 dark:text-brand-400">
                 {Math.max(0, stats.current - (profile?.goalWeight || 80)).toFixed(1)} kg
               </p>
             </div>
@@ -265,18 +276,20 @@ export function Progress() {
         {/* Workout stats */}
         <section className="card p-4">
           <div className="flex items-center gap-2 mb-4">
-            <Calendar size={20} className="text-primary-600 dark:text-primary-400" />
-            <h2 className="font-bold">Workout Stats</h2>
+            <div className="w-8 h-8 rounded-lg bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center">
+              <Calendar size={18} className="text-accent-600 dark:text-accent-400" />
+            </div>
+            <h2 className="font-bold text-dark-900 dark:text-white">Workout Stats</h2>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Total Workouts</p>
-              <p className="text-3xl font-bold">{workoutStats.totalWorkouts}</p>
+              <p className="text-sm text-dark-500 dark:text-dark-400">Total Workouts</p>
+              <p className="text-3xl font-bold text-dark-900 dark:text-white">{workoutStats.totalWorkouts}</p>
             </div>
             <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Avg Duration</p>
-              <p className="text-3xl font-bold">{workoutStats.avgDuration} min</p>
+              <p className="text-sm text-dark-500 dark:text-dark-400">Avg Duration</p>
+              <p className="text-3xl font-bold text-dark-900 dark:text-white">{workoutStats.avgDuration} min</p>
             </div>
           </div>
         </section>
@@ -284,7 +297,7 @@ export function Progress() {
         {/* Recent weight entries */}
         {weightEntries.length > 0 && (
           <section>
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
+            <h2 className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide mb-3">
               Recent Entries
             </h2>
             <div className="space-y-2">
@@ -292,17 +305,17 @@ export function Progress() {
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .slice(0, 5)
                 .map(entry => (
-                  <div key={entry.id} className="card p-3 flex items-center justify-between">
+                  <div key={entry.id} className="card p-4 flex items-center justify-between">
                     <div>
-                      <p className="font-bold">{entry.weight} kg</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                      <p className="font-bold text-dark-900 dark:text-white">{entry.weight} kg</p>
+                      <p className="text-sm text-dark-500 dark:text-dark-400">
                         {format(parseISO(entry.date), 'MMM d, yyyy')}
                         {entry.notes && ` • ${entry.notes}`}
                       </p>
                     </div>
                     <button
                       onClick={() => removeWeightEntry(entry.id)}
-                      className="p-2 text-red-500 touch-manipulation"
+                      className="p-2 text-red-500 hover:text-red-400 touch-manipulation transition-colors"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -315,13 +328,13 @@ export function Progress() {
 
       {/* Add Weight Modal */}
       {showAddWeight && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 m-4 max-w-sm w-full slide-up">
-            <h3 className="text-xl font-bold mb-4">Log Weight</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-dark-800 rounded-3xl p-6 m-4 max-w-sm w-full slide-up shadow-2xl border border-dark-200 dark:border-dark-700">
+            <h3 className="text-xl font-bold mb-4 text-dark-900 dark:text-white">Log Weight</h3>
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2 block">
+                <label className="text-sm font-medium text-dark-500 dark:text-dark-400 mb-2 block">
                   Weight (kg)
                 </label>
                 <input
@@ -337,7 +350,7 @@ export function Progress() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2 block">
+                <label className="text-sm font-medium text-dark-500 dark:text-dark-400 mb-2 block">
                   Notes (optional)
                 </label>
                 <input
@@ -353,13 +366,13 @@ export function Progress() {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowAddWeight(false)}
-                className="flex-1 btn btn-secondary"
+                className="flex-1 btn-secondary"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddWeight}
-                className="flex-1 btn btn-primary"
+                className="flex-1 btn-brand"
               >
                 Save
               </button>

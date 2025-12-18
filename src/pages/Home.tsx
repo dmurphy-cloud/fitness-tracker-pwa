@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { format, isToday, parseISO, startOfWeek, endOfWeek, eachDayOfInterval } from 'date-fns';
-import { Play, TrendingDown, Calendar, Flame, Award } from 'lucide-react';
+import { Play, Target, Calendar, Flame, Trophy, ChevronRight, Zap } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { WorkoutCard, MiniWorkoutCard } from '../components/WorkoutCard';
 
@@ -16,7 +16,6 @@ export function Home() {
     getLastWorkoutForDay,
   } = useApp();
 
-  // Get this week's workout completions
   const today = new Date();
   const weekStart = startOfWeek(today, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(today, { weekStartsOn: 1 });
@@ -27,72 +26,95 @@ export function Home() {
     return log.completed && logDate >= weekStart && logDate <= weekEnd;
   });
 
-  // Calculate weight progress
   const weightToLose = profile ? profile.currentWeight - profile.goalWeight : 0;
   const progressPercent = profile
-    ? Math.min(100, ((94 - profile.currentWeight) / (94 - profile.goalWeight)) * 100)
+    ? Math.min(100, Math.max(0, ((94 - profile.currentWeight) / (94 - profile.goalWeight)) * 100))
     : 0;
 
-  // Get suggested next workout
   const todayWorkout = currentProgram.days[currentDayIndex];
   const todayLog = getLastWorkoutForDay(todayWorkout?.id);
   const completedToday = todayLog && isToday(parseISO(todayLog.date));
 
-  // Calculate streak
   const streak = calculateStreak(workoutLogs);
 
   const handleStartWorkout = () => {
-    if (activeWorkout) {
-      navigate('/workout');
-    } else {
-      navigate('/workout');
-    }
+    navigate('/workout');
   };
 
   return (
-    <div className="min-h-screen pb-24 pt-safe-top">
-      {/* Header */}
-      <header className="px-5 py-6 bg-gradient-to-br from-primary-600 to-primary-700 text-white">
-        <p className="text-primary-200 text-sm">
-          {format(today, 'EEEE, MMMM d')}
-        </p>
-        <h1 className="text-2xl font-bold mt-1">
-          {getGreeting()}, {profile?.name || 'User'}!
-        </h1>
+    <div className="min-h-screen pb-24 bg-dark-50 dark:bg-dark-950">
+      {/* Premium Header with Mesh Gradient */}
+      <header className="relative overflow-hidden safe-area-top">
+        <div className="absolute inset-0 bg-gradient-to-br from-dark-900 via-dark-900 to-dark-950" />
+        <div className="absolute inset-0 bg-mesh-dark opacity-60" />
 
-        {/* Quick stats */}
-        <div className="flex gap-4 mt-4">
-          <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-            <Flame size={18} className="text-orange-300" />
-            <span className="font-semibold">{streak} day streak</span>
+        <div className="relative px-5 pt-6 pb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <p className="text-dark-400 text-sm font-medium">
+                {format(today, 'EEEE, MMMM d')}
+              </p>
+              <h1 className="text-2xl font-bold text-white mt-1">
+                {getGreeting()}, {profile?.name || 'Athlete'}
+              </h1>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-gradient-brand flex items-center justify-center shadow-glow">
+              <Zap size={24} className="text-white" />
+            </div>
           </div>
-          <div className="flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2">
-            <Award size={18} className="text-yellow-300" />
-            <span className="font-semibold">{workoutsThisWeek.length}/4 this week</span>
+
+          {/* Stats Row */}
+          <div className="flex gap-3">
+            <div className="flex-1 bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+              <div className="flex items-center gap-2 mb-1">
+                <Flame size={16} className="text-accent-400" />
+                <span className="text-xs font-medium text-dark-400 uppercase tracking-wide">Streak</span>
+              </div>
+              <p className="text-2xl font-bold text-white">{streak} <span className="text-sm font-normal text-dark-400">days</span></p>
+            </div>
+            <div className="flex-1 bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+              <div className="flex items-center gap-2 mb-1">
+                <Trophy size={16} className="text-accent-400" />
+                <span className="text-xs font-medium text-dark-400 uppercase tracking-wide">This Week</span>
+              </div>
+              <p className="text-2xl font-bold text-white">{workoutsThisWeek.length}<span className="text-sm font-normal text-dark-400">/4</span></p>
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="px-5 py-6 space-y-6">
-        {/* Continue workout banner */}
+      <main className="px-5 py-6 space-y-6 -mt-2">
+        {/* Active Workout Banner */}
         {activeWorkout && (
           <button
             onClick={() => navigate('/workout')}
-            className="w-full p-4 bg-gradient-to-r from-success-500 to-success-600 text-white rounded-2xl flex items-center justify-between active:scale-[0.98] transition-transform touch-manipulation"
+            className="w-full relative overflow-hidden rounded-3xl active:scale-[0.98] transition-transform touch-manipulation"
           >
-            <div>
-              <p className="text-success-100 text-sm">Workout in progress</p>
-              <p className="font-bold text-lg">Continue workout</p>
+            <div className="absolute inset-0 bg-gradient-to-r from-success-500 to-success-600" />
+            <div className="absolute inset-0 shimmer" />
+            <div className="relative p-5 flex items-center justify-between">
+              <div className="text-left">
+                <p className="text-success-100 text-sm font-medium">Workout in progress</p>
+                <p className="text-white font-bold text-xl mt-0.5">Continue workout</p>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center">
+                <Play size={28} className="text-white ml-1" fill="currentColor" />
+              </div>
             </div>
-            <Play size={32} fill="currentColor" />
           </button>
         )}
 
-        {/* Today's workout */}
+        {/* Today's Workout */}
         <section>
-          <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
-            {completedToday ? "Today's Workout Complete!" : "Today's Workout"}
-          </h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="section-header flex items-center gap-2 mb-0">
+              <Target size={14} className="text-brand-500" />
+              {completedToday ? "Completed Today" : "Today's Workout"}
+            </h2>
+            {completedToday && (
+              <span className="badge badge-success">Done</span>
+            )}
+          </div>
 
           {todayWorkout && (
             <WorkoutCard
@@ -103,26 +125,27 @@ export function Home() {
             />
           )}
 
-          {!completedToday && (
+          {!completedToday && !activeWorkout && (
             <button
               onClick={handleStartWorkout}
-              className="w-full mt-3 btn btn-primary flex items-center justify-center gap-2"
+              className="w-full mt-4 btn btn-brand flex items-center justify-center gap-3"
             >
               <Play size={20} fill="currentColor" />
-              {activeWorkout ? 'Continue Workout' : 'Start Workout'}
+              Start Workout
             </button>
           )}
         </section>
 
-        {/* Week overview */}
+        {/* Week Overview */}
         <section>
-          <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-            <Calendar size={16} />
+          <h2 className="section-header flex items-center gap-2">
+            <Calendar size={14} className="text-brand-500" />
             This Week
           </h2>
 
-          <div className="card p-4">
-            <div className="flex justify-between mb-4">
+          <div className="card p-5">
+            {/* Calendar Row */}
+            <div className="flex justify-between mb-5">
               {weekDays.map((day) => {
                 const dayLogs = workoutLogs.filter(
                   log => log.completed && parseISO(log.date).toDateString() === day.toDateString()
@@ -131,20 +154,19 @@ export function Home() {
                 const isCurrentDay = isToday(day);
 
                 return (
-                  <div
-                    key={day.toISOString()}
-                    className={`flex flex-col items-center gap-1 ${isCurrentDay ? 'text-primary-600 dark:text-primary-400' : ''}`}
-                  >
-                    <span className="text-xs font-medium">
+                  <div key={day.toISOString()} className="flex flex-col items-center gap-2">
+                    <span className={`text-xs font-semibold uppercase ${
+                      isCurrentDay ? 'text-brand-500' : 'text-dark-400'
+                    }`}>
                       {format(day, 'EEE')}
                     </span>
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all
                         ${isCompleted
-                          ? 'bg-success-500 text-white'
+                          ? 'bg-gradient-success text-white shadow-lg shadow-success-500/30'
                           : isCurrentDay
-                            ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
-                            : 'bg-slate-100 dark:bg-slate-800'
+                            ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 ring-2 ring-brand-500/30'
+                            : 'bg-dark-100 dark:bg-dark-800 text-dark-500'
                         }
                       `}
                     >
@@ -155,8 +177,8 @@ export function Home() {
               })}
             </div>
 
-            {/* Program days quick select */}
-            <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-2 px-2 pb-2">
+            {/* Workout Days Selector */}
+            <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-2 px-2 pb-1">
               {currentProgram.days.map((day, index) => {
                 const dayLog = getLastWorkoutForDay(day.id);
                 const completed = dayLog && isToday(parseISO(dayLog.date));
@@ -176,68 +198,90 @@ export function Home() {
           </div>
         </section>
 
-        {/* Weight progress */}
+        {/* Weight Progress */}
         {profile && (
           <section>
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 flex items-center gap-2">
-              <TrendingDown size={16} />
-              Weight Goal Progress
+            <h2 className="section-header flex items-center gap-2">
+              <Target size={14} className="text-brand-500" />
+              Weight Goal
             </h2>
 
-            <div className="card p-4">
-              <div className="flex justify-between items-center mb-3">
+            <div className="card p-5">
+              <div className="flex justify-between items-end mb-4">
                 <div>
-                  <span className="text-3xl font-bold">{profile.currentWeight}</span>
-                  <span className="text-slate-500 dark:text-slate-400 ml-1">kg</span>
+                  <p className="text-dark-400 text-sm font-medium mb-1">Current</p>
+                  <p className="text-4xl font-bold text-dark-900 dark:text-white">
+                    {profile.currentWeight}
+                    <span className="text-lg font-normal text-dark-400 ml-1">kg</span>
+                  </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-sm text-slate-500 dark:text-slate-400">Goal: </span>
-                  <span className="font-bold">{profile.goalWeight} kg</span>
+                  <p className="text-dark-400 text-sm font-medium mb-1">Goal</p>
+                  <p className="text-2xl font-bold text-success-500">
+                    {profile.goalWeight}
+                    <span className="text-sm font-normal ml-1">kg</span>
+                  </p>
                 </div>
               </div>
 
-              {/* Progress bar */}
-              <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              {/* Progress Bar */}
+              <div className="relative h-3 bg-dark-100 dark:bg-dark-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-primary-500 to-success-500 rounded-full progress-animate"
-                  style={{ width: `${Math.max(0, progressPercent)}%` }}
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-brand-500 to-success-500 rounded-full progress-animate"
+                  style={{ width: `${progressPercent}%` }}
                 />
               </div>
 
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-                {weightToLose > 0
-                  ? `${weightToLose.toFixed(1)} kg to go`
-                  : 'Goal reached! 🎉'
-                }
-              </p>
+              <div className="flex justify-between items-center mt-3">
+                <p className="text-sm font-medium text-dark-500">
+                  {weightToLose > 0 ? `${weightToLose.toFixed(1)} kg to go` : 'Goal achieved!'}
+                </p>
+                <p className="text-sm font-bold text-brand-500">
+                  {progressPercent.toFixed(0)}%
+                </p>
+              </div>
             </div>
           </section>
         )}
 
-        {/* Recent workouts */}
+        {/* Recent Activity */}
         {workoutLogs.length > 0 && (
           <section>
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
-              Recent Activity
-            </h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="section-header mb-0">Recent Activity</h2>
+              <button className="text-sm font-semibold text-brand-500 flex items-center gap-1">
+                View all <ChevronRight size={16} />
+              </button>
+            </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               {workoutLogs.slice(0, 3).map((log) => {
                 const day = currentProgram.days.find(d => d.id === log.workoutDayId);
                 if (!day) return null;
 
                 return (
-                  <div key={log.id} className="card p-3 flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{day.name}</p>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {format(parseISO(log.date), 'MMM d, yyyy')}
-                        {log.duration && ` • ${Math.floor(log.duration / 60)} min`}
-                      </p>
+                  <div key={log.id} className="card p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                        log.completed
+                          ? 'bg-success-100 dark:bg-success-900/30'
+                          : 'bg-dark-100 dark:bg-dark-800'
+                      }`}>
+                        {log.completed ? (
+                          <Trophy size={20} className="text-success-500" />
+                        ) : (
+                          <Play size={20} className="text-dark-400" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-dark-900 dark:text-white">{day.name}</p>
+                        <p className="text-sm text-dark-400">
+                          {format(parseISO(log.date), 'MMM d')}
+                          {log.duration && ` · ${Math.floor(log.duration / 60)} min`}
+                        </p>
+                      </div>
                     </div>
-                    {log.completed && (
-                      <span className="text-success-500">✓</span>
-                    )}
+                    <ChevronRight size={20} className="text-dark-300" />
                   </div>
                 );
               })}
@@ -266,20 +310,18 @@ function calculateStreak(logs: { date: string; completed: boolean }[]): number {
   if (completedLogs.length === 0) return 0;
 
   let streak = 0;
-  let currentDate = new Date();
+  const currentDate = new Date();
   currentDate.setHours(0, 0, 0, 0);
 
-  // Check if there's a workout today or yesterday to start the streak
   const lastWorkout = new Date(completedLogs[0].date);
   lastWorkout.setHours(0, 0, 0, 0);
 
   const diffDays = Math.floor((currentDate.getTime() - lastWorkout.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays > 1) return 0;
 
-  // Count consecutive days (allowing 1 rest day between workouts)
   const workoutDates = new Set(completedLogs.map(l => l.date.split('T')[0]));
 
-  let checkDate = new Date(currentDate);
+  const checkDate = new Date(currentDate);
   let restDayUsed = false;
 
   for (let i = 0; i < 365; i++) {

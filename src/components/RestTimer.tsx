@@ -25,7 +25,7 @@ export function RestTimer({ defaultSeconds = 120, onComplete, compact = false }:
       <div className="flex items-center gap-2">
         <button
           onClick={handleStartPause}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl active:scale-95 transition-transform touch-manipulation"
+          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-brand text-white rounded-xl active:scale-95 transition-transform touch-manipulation shadow-lg shadow-brand-500/25"
         >
           {isRunning ? <Pause size={18} /> : <Play size={18} />}
           <span className="font-mono font-bold text-lg">
@@ -35,7 +35,7 @@ export function RestTimer({ defaultSeconds = 120, onComplete, compact = false }:
         {timeLeft > 0 && (
           <button
             onClick={reset}
-            className="p-2 bg-slate-200 dark:bg-slate-700 rounded-xl active:scale-95 transition-transform touch-manipulation"
+            className="p-2.5 bg-dark-100 dark:bg-dark-800 rounded-xl active:scale-95 transition-transform touch-manipulation"
           >
             <RotateCcw size={18} />
           </button>
@@ -45,23 +45,28 @@ export function RestTimer({ defaultSeconds = 120, onComplete, compact = false }:
   }
 
   return (
-    <div className="card p-6">
-      <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-wide">
+    <div className="text-center">
+      <h3 className="section-header text-center mb-6">
         Rest Timer
       </h3>
 
       {/* Timer Display */}
-      <div className="relative w-48 h-48 mx-auto mb-6">
+      <div className="relative w-52 h-52 mx-auto mb-8">
+        {/* Glow effect when running */}
+        {isRunning && (
+          <div className="absolute inset-0 rounded-full bg-brand-500/20 blur-xl timer-pulse" />
+        )}
+
         {/* Background circle */}
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+        <svg className="w-full h-full -rotate-90 relative" viewBox="0 0 100 100">
           <circle
             cx="50"
             cy="50"
             r="45"
             fill="none"
             stroke="currentColor"
-            strokeWidth="8"
-            className="text-slate-200 dark:text-slate-700"
+            strokeWidth="6"
+            className="text-dark-200 dark:text-dark-700"
           />
           {/* Progress circle */}
           <circle
@@ -69,57 +74,73 @@ export function RestTimer({ defaultSeconds = 120, onComplete, compact = false }:
             cy="50"
             r="45"
             fill="none"
-            stroke="currentColor"
-            strokeWidth="8"
+            stroke="url(#timerGradient)"
+            strokeWidth="6"
             strokeLinecap="round"
             strokeDasharray={`${progress * 2.83} 283`}
-            className={`text-primary-500 transition-all duration-1000 ${isRunning ? 'timer-pulse' : ''}`}
+            className={`transition-all duration-300 ${isRunning ? '' : ''}`}
           />
+          <defs>
+            <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#06b6d4" />
+              <stop offset="100%" stopColor="#10b981" />
+            </linearGradient>
+          </defs>
         </svg>
 
         {/* Time display */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-5xl font-mono font-bold">
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-5xl font-mono font-bold text-dark-900 dark:text-white">
             {timeLeft > 0 ? formatTime(timeLeft) : formatTime(defaultSeconds)}
           </span>
+          {isRunning && (
+            <span className="text-xs font-medium text-brand-500 uppercase tracking-wider mt-1">
+              Resting
+            </span>
+          )}
         </div>
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex items-center justify-center gap-4 mb-6">
         <button
           onClick={() => addTime(-15)}
           disabled={timeLeft <= 15}
-          className="p-3 rounded-xl bg-slate-200 dark:bg-slate-700 disabled:opacity-50 active:scale-95 transition-transform touch-manipulation"
+          className="w-14 h-14 rounded-2xl bg-dark-100 dark:bg-dark-800 disabled:opacity-30 active:scale-95 transition-all touch-manipulation flex items-center justify-center"
         >
-          <Minus size={24} />
+          <Minus size={24} className="text-dark-600 dark:text-dark-300" />
         </button>
 
         <button
           onClick={handleStartPause}
-          className="p-5 rounded-full bg-primary-600 text-white active:scale-95 transition-transform touch-manipulation shadow-lg"
+          className={`w-20 h-20 rounded-full text-white active:scale-95 transition-all touch-manipulation shadow-xl flex items-center justify-center
+            ${isRunning
+              ? 'bg-gradient-accent shadow-accent-500/30'
+              : 'bg-gradient-brand shadow-brand-500/30'
+            }
+          `}
         >
-          {isRunning ? <Pause size={32} /> : <Play size={32} className="ml-1" />}
+          {isRunning ? <Pause size={36} /> : <Play size={36} className="ml-1" />}
         </button>
 
         <button
           onClick={() => addTime(15)}
-          className="p-3 rounded-xl bg-slate-200 dark:bg-slate-700 active:scale-95 transition-transform touch-manipulation"
+          className="w-14 h-14 rounded-2xl bg-dark-100 dark:bg-dark-800 active:scale-95 transition-all touch-manipulation flex items-center justify-center"
         >
-          <Plus size={24} />
+          <Plus size={24} className="text-dark-600 dark:text-dark-300" />
         </button>
       </div>
 
       {/* Quick presets */}
-      <div className="flex justify-center gap-2 mt-4">
+      <div className="flex justify-center gap-2 mb-4">
         {[60, 90, 120, 180].map((secs) => (
           <button
             key={secs}
             onClick={() => start(secs)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors touch-manipulation
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all touch-manipulation
               ${defaultSeconds === secs
-                ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400'
+                : 'bg-dark-100 dark:bg-dark-800 text-dark-500 hover:bg-dark-200 dark:hover:bg-dark-700'
               }`}
           >
             {formatTime(secs)}
@@ -131,10 +152,10 @@ export function RestTimer({ defaultSeconds = 120, onComplete, compact = false }:
       {timeLeft > 0 && (
         <button
           onClick={reset}
-          className="flex items-center justify-center gap-2 w-full mt-4 py-2 text-slate-500 dark:text-slate-400 active:scale-95 transition-transform touch-manipulation"
+          className="flex items-center justify-center gap-2 mx-auto py-2 px-4 text-dark-400 hover:text-dark-600 dark:hover:text-dark-300 active:scale-95 transition-all touch-manipulation"
         >
           <RotateCcw size={16} />
-          <span className="text-sm">Reset</span>
+          <span className="text-sm font-medium">Reset Timer</span>
         </button>
       )}
     </div>

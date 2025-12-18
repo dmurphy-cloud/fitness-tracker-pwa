@@ -50,14 +50,14 @@ export function Exercises() {
   const hasActiveFilters = selectedMuscle || selectedEquipment || searchQuery;
 
   return (
-    <div className="min-h-screen pb-24 pt-safe-top">
+    <div className="min-h-screen pb-24 pt-safe-top bg-gray-50 dark:bg-dark-950">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 py-3 safe-area-top">
-        <h1 className="text-2xl font-bold mb-3">Exercise Library</h1>
+      <header className="sticky top-0 z-40 bg-white/80 dark:bg-dark-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-dark-700/50 px-4 py-3 safe-area-top">
+        <h1 className="text-2xl font-bold mb-3 text-dark-900 dark:text-white">Exercise Library</h1>
 
         {/* Search */}
         <div className="relative">
-          <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-dark-400" />
           <input
             type="text"
             placeholder="Search exercises..."
@@ -70,7 +70,7 @@ export function Exercises() {
               onClick={() => setSearchQuery('')}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-1 touch-manipulation"
             >
-              <X size={18} className="text-slate-400" />
+              <X size={18} className="text-dark-400" />
             </button>
           )}
         </div>
@@ -78,17 +78,17 @@ export function Exercises() {
         {/* Filter toggle */}
         <button
           onClick={() => setShowFilters(!showFilters)}
-          className={`mt-3 flex items-center gap-2 px-4 py-2 rounded-xl transition-colors touch-manipulation
+          className={`mt-3 flex items-center gap-2 px-4 py-2 rounded-xl transition-colors touch-manipulation font-medium
             ${showFilters || hasActiveFilters
-              ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-              : 'bg-slate-100 dark:bg-slate-700'
+              ? 'bg-brand-100 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300'
+              : 'bg-dark-100 dark:bg-dark-700 text-dark-600 dark:text-dark-300'
             }
           `}
         >
           <Filter size={18} />
-          <span className="font-medium">Filters</span>
+          <span>Filters</span>
           {hasActiveFilters && (
-            <span className="px-2 py-0.5 bg-primary-500 text-white text-xs rounded-full">
+            <span className="px-2 py-0.5 bg-gradient-brand text-white text-xs rounded-full font-semibold">
               {[selectedMuscle, selectedEquipment, searchQuery].filter(Boolean).length}
             </span>
           )}
@@ -99,7 +99,7 @@ export function Exercises() {
           <div className="mt-4 space-y-4">
             {/* Muscle groups */}
             <div>
-              <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2 block">
+              <label className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase mb-2 block">
                 Muscle Group
               </label>
               <div className="flex flex-wrap gap-2">
@@ -107,10 +107,10 @@ export function Exercises() {
                   <button
                     key={muscle}
                     onClick={() => setSelectedMuscle(selectedMuscle === muscle ? null : muscle)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors touch-manipulation
+                    className={`px-3 py-1.5 rounded-xl text-sm font-medium capitalize transition-all touch-manipulation
                       ${selectedMuscle === muscle
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                        ? 'bg-gradient-brand text-white shadow-lg shadow-brand-500/25'
+                        : 'bg-dark-100 dark:bg-dark-700 text-dark-700 dark:text-dark-300 hover:bg-dark-200 dark:hover:bg-dark-600'
                       }
                     `}
                   >
@@ -122,7 +122,7 @@ export function Exercises() {
 
             {/* Equipment */}
             <div>
-              <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2 block">
+              <label className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase mb-2 block">
                 Equipment
               </label>
               <div className="flex flex-wrap gap-2">
@@ -130,10 +130,10 @@ export function Exercises() {
                   <button
                     key={equipment}
                     onClick={() => setSelectedEquipment(selectedEquipment === equipment ? null : equipment)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-colors touch-manipulation
+                    className={`px-3 py-1.5 rounded-xl text-sm font-medium capitalize transition-all touch-manipulation
                       ${selectedEquipment === equipment
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                        ? 'bg-gradient-brand text-white shadow-lg shadow-brand-500/25'
+                        : 'bg-dark-100 dark:bg-dark-700 text-dark-700 dark:text-dark-300 hover:bg-dark-200 dark:hover:bg-dark-600'
                       }
                     `}
                   >
@@ -147,7 +147,7 @@ export function Exercises() {
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="text-sm text-primary-600 dark:text-primary-400 font-medium touch-manipulation"
+                className="text-sm text-brand-600 dark:text-brand-400 font-semibold touch-manipulation hover:text-brand-700 dark:hover:text-brand-300 transition-colors"
               >
                 Clear all filters
               </button>
@@ -158,14 +158,14 @@ export function Exercises() {
 
       <main className="px-4 py-4">
         {/* Results count */}
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <p className="text-sm text-dark-500 dark:text-dark-400 mb-4">
           {filteredExercises.length} exercise{filteredExercises.length !== 1 ? 's' : ''} found
         </p>
 
         {/* Grouped exercises */}
         {Object.entries(groupedExercises).map(([muscle, muscleExercises]) => (
           <div key={muscle} className="mb-6">
-            <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 capitalize">
+            <h2 className="text-sm font-semibold text-dark-500 dark:text-dark-400 uppercase tracking-wide mb-3 capitalize">
               {muscle}
             </h2>
             <div className="space-y-2">
@@ -175,17 +175,17 @@ export function Exercises() {
                   onClick={() => setSelectedExercise(exercise)}
                   className="card w-full p-4 text-left active:scale-[0.98] transition-transform touch-manipulation"
                 >
-                  <h3 className="font-bold mb-1">{exercise.name}</h3>
+                  <h3 className="font-bold mb-2 text-dark-900 dark:text-white">{exercise.name}</h3>
                   <div className="flex flex-wrap gap-2">
                     {exercise.muscleGroups.slice(0, 3).map(m => (
                       <span
                         key={m}
-                        className="px-2 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded text-xs font-medium capitalize"
+                        className="badge-brand"
                       >
                         {m}
                       </span>
                     ))}
-                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded text-xs font-medium capitalize">
+                    <span className="px-2 py-0.5 bg-dark-100 dark:bg-dark-700 text-dark-600 dark:text-dark-400 rounded-lg text-xs font-medium capitalize">
                       {exercise.equipment}
                     </span>
                   </div>
@@ -197,12 +197,12 @@ export function Exercises() {
 
         {filteredExercises.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-slate-500 dark:text-slate-400 mb-4">
+            <p className="text-dark-500 dark:text-dark-400 mb-4">
               No exercises found matching your filters.
             </p>
             <button
               onClick={clearFilters}
-              className="btn btn-secondary"
+              className="btn-secondary"
             >
               Clear Filters
             </button>
