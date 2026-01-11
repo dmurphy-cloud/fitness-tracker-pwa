@@ -158,7 +158,16 @@
 <!-- SETUP -->
 <div id="setup">
     <div class="title">Mason's Cars World</div>
-    <div class="grid" id="grid"></div>
+    <div class="grid">
+        <div class="slot" data-id="background"><div class="name">Background</div><div class="hint">Radiator Springs</div><input type="file" accept="image/*"></div>
+        <div class="slot" data-id="mcqueen"><div class="name">McQueen</div><div class="hint">Red race car</div><input type="file" accept="image/*"></div>
+        <div class="slot" data-id="mack"><div class="name">Mack</div><div class="hint">Big truck</div><input type="file" accept="image/*"></div>
+        <div class="slot" data-id="mater"><div class="name">Mater</div><div class="hint">Tow truck</div><input type="file" accept="image/*"></div>
+        <div class="slot" data-id="mason"><div class="name">Mason</div><div class="hint">Photo</div><input type="file" accept="image/*"></div>
+        <div class="slot" data-id="lola"><div class="name">Lola</div><div class="hint">Photo</div><input type="file" accept="image/*"></div>
+        <div class="slot" data-id="mam"><div class="name">Mam</div><div class="hint">Photo</div><input type="file" accept="image/*"></div>
+        <div class="slot" data-id="dad"><div class="name">Dad</div><div class="hint">Photo</div><input type="file" accept="image/*"></div>
+    </div>
     <button class="btn" id="startBtn" disabled>Start Racing!</button>
 </div>
 
@@ -263,27 +272,22 @@ function playSound(type) {
 }
 
 // Setup UI
-function buildSetup() {
-    const grid = document.getElementById('grid');
-    slots.forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'slot';
-        div.id = 'slot-' + s.id;
-        div.innerHTML = `<div class="name">${s.name}</div><div class="hint">${s.hint}</div><input type="file" accept="image/*">`;
-        grid.appendChild(div);
-
+function setupSlots() {
+    document.querySelectorAll('.slot').forEach(div => {
+        const id = div.getAttribute('data-id');
         const input = div.querySelector('input');
-        div.onclick = () => input.click();
 
-        input.onchange = (e) => {
+        div.onclick = function() { input.click(); };
+
+        input.onchange = function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = (ev) => {
-                images[s.id] = ev.target.result;
+            reader.onload = function(ev) {
+                images[id] = ev.target.result;
                 div.classList.add('done');
-                let img = div.querySelector('img');
+                var img = div.querySelector('img');
                 if (!img) {
                     img = document.createElement('img');
                     div.appendChild(img);
@@ -406,7 +410,7 @@ function startApp() {
 }
 
 // Init
-buildSetup();
+setupSlots();
 
 document.getElementById('startBtn').onclick = startApp;
 
