@@ -254,7 +254,8 @@
             <input type="file" accept="image/*" data-target="dad">
         </div>
     </div>
-    <div id="startBtn" class="start-btn">Start Racing!</div>
+    <input type="checkbox" id="startCheck" style="position:absolute;opacity:0;pointer-events:none;">
+    <label for="startCheck" id="startBtn" class="start-btn">Start Racing!</label>
 </div>
 
 <div id="app">
@@ -568,13 +569,11 @@
             });
         }
 
-        // Start button - multiple event types for maximum compatibility
-        function onStartTap(e) {
-            e.preventDefault();
+        // Start button - using checkbox change event (works on iPad Safari)
+        var startCheck = document.getElementById('startCheck');
+        startCheck.addEventListener('change', function() {
             startApp();
-        }
-        startBtn.addEventListener('touchend', onStartTap, {passive: false});
-        startBtn.addEventListener('click', onStartTap);
+        });
 
         // Back button
         function onBackTap(e) {
