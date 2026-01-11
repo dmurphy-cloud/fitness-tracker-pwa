@@ -96,9 +96,7 @@
             border-color: #4ecdc4;
         }
 
-        .drop-slot input {
-            display: none;
-        }
+        .drop-slot input { display: none; }
 
         .drop-slot .label {
             color: #ffd93d;
@@ -144,7 +142,6 @@
             background: #555;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
         .reset-btn {
@@ -157,11 +154,6 @@
             border: 1px solid #555;
             border-radius: 20px;
             cursor: pointer;
-        }
-
-        .reset-btn:hover {
-            border-color: #ff6b6b;
-            color: #ff6b6b;
         }
 
         .progress-bar {
@@ -177,7 +169,6 @@
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #4ecdc4, #44a08d);
-            border-radius: 4px;
             transition: width 0.3s;
         }
 
@@ -196,9 +187,7 @@
             overflow: hidden;
         }
 
-        .app-container.hidden {
-            display: none;
-        }
+        .app-container.hidden { display: none; }
 
         .background {
             position: absolute;
@@ -208,62 +197,116 @@
             height: 100%;
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
         }
 
-        .road-area {
+        /* Race track overlay */
+        .race-track {
             position: absolute;
-            bottom: 15%;
+            bottom: 12%;
             left: 0;
             width: 100%;
-            height: 35%;
+            height: 42%;
             pointer-events: none;
         }
 
+        .lane {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 33%;
+            pointer-events: none;
+        }
+
+        .lane-1 { top: 0; }
+        .lane-2 { top: 33%; }
+        .lane-3 { top: 66%; }
+
+        /* Cars */
         .car {
             position: absolute;
-            height: auto;
             cursor: pointer;
             pointer-events: auto;
-            transition: transform 0.2s ease-out;
-            will-change: transform, left;
+            transition: top 0.8s ease-in-out, transform 0.15s ease-out;
+            will-change: transform, left, top;
+            z-index: 10;
         }
 
         .car img {
             height: 100%;
             width: auto;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.5));
         }
 
         .car.tapped {
-            transform: scale(1.15) !important;
+            transform: scale(1.2) rotate(-3deg) !important;
+            z-index: 100;
         }
 
-        .car.bobbing {
-            animation: bob 3s ease-in-out infinite;
+        .car.boosting img {
+            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.5))
+                   drop-shadow(0 0 20px rgba(255,200,0,0.6));
         }
 
-        @keyframes bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+        /* Speech bubble */
+        .speech-bubble {
+            position: absolute;
+            bottom: 105%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: #333;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 200;
         }
 
-        .car.tapped.bobbing {
-            animation: bob-tapped 3s ease-in-out infinite;
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: white;
         }
 
-        @keyframes bob-tapped {
-            0%, 100% { transform: scale(1.15) translateY(0); }
-            50% { transform: scale(1.15) translateY(-8px); }
+        .speech-bubble.visible {
+            opacity: 1;
         }
 
+        /* Position indicator */
+        .position-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #333;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 50;
+        }
+
+        /* Family bar */
         .family-bar {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 14%;
-            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            height: 12%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -272,8 +315,8 @@
         }
 
         .family-photo {
-            width: 12vmin;
-            height: 12vmin;
+            width: 11vmin;
+            height: 11vmin;
             border-radius: 50%;
             overflow: hidden;
             border: 3px solid rgba(255,255,255,0.6);
@@ -288,34 +331,32 @@
             object-fit: cover;
         }
 
-        .family-photo:active,
         .family-photo.glowing {
             border-color: #ffd700;
-            box-shadow: 0 0 25px 8px rgba(255,215,0,0.6), 0 0 50px 15px rgba(255,215,0,0.3);
-            transform: scale(1.1);
+            box-shadow: 0 0 25px 8px rgba(255,215,0,0.6);
+            transform: scale(1.15);
         }
 
         .photo-wrapper {
-            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .photo-name {
             color: white;
-            font-size: 2.2vmin;
+            font-size: 2vmin;
             font-weight: 600;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        .sound-toggle {
+        /* Controls */
+        .control-btn {
             position: absolute;
             top: 20px;
-            right: 20px;
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             background: rgba(255,255,255,0.2);
             backdrop-filter: blur(10px);
@@ -324,50 +365,48 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 24px;
             transition: all 0.3s ease;
             z-index: 100;
         }
 
-        .sound-toggle:active {
+        .control-btn:active {
             transform: scale(0.95);
-            background: rgba(255,255,255,0.3);
         }
 
+        .sound-toggle { right: 20px; }
         .sound-toggle.muted {
             background: rgba(255,0,0,0.2);
             border-color: rgba(255,100,100,0.5);
         }
 
-        .settings-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.4);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
+        .settings-btn { left: 20px; }
 
         .title {
             position: absolute;
-            top: 20px;
+            top: 18px;
             left: 50%;
             transform: translateX(-50%);
             color: white;
-            font-size: 4vmin;
+            font-size: 3.5vmin;
             font-weight: 700;
-            text-shadow: 0 3px 10px rgba(0,0,0,0.5);
-            letter-spacing: 2px;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.6);
+            letter-spacing: 1px;
+        }
+
+        /* Race status */
+        .race-status {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            padding: 8px 20px;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
         }
     </style>
 </head>
@@ -385,7 +424,7 @@
 
             <div class="image-grid" id="imageGrid"></div>
 
-            <button class="start-btn" id="startBtn" disabled>Start App</button>
+            <button class="start-btn" id="startBtn" disabled>Start Racing!</button>
             <button class="reset-btn" id="resetBtn">Reset All Images</button>
         </div>
     </div>
@@ -394,18 +433,22 @@
     <div class="app-container hidden" id="appContainer">
         <div class="background" id="background"></div>
         <div class="title">Mason's Cars World</div>
-        <div class="road-area" id="roadArea"></div>
+        <div class="race-status" id="raceStatus">Race in progress!</div>
+        <div class="race-track" id="raceTrack">
+            <div class="lane lane-1"></div>
+            <div class="lane lane-2"></div>
+            <div class="lane lane-3"></div>
+        </div>
         <div class="family-bar" id="familyBar"></div>
-        <button class="settings-btn" id="settingsBtn">⚙️</button>
-        <button class="sound-toggle" id="soundToggle">🔊</button>
+        <button class="control-btn settings-btn" id="settingsBtn">⚙️</button>
+        <button class="control-btn sound-toggle" id="soundToggle">🔊</button>
     </div>
 
     <script>
         // ============================================
-        // IMAGE STORAGE (localStorage)
+        // STORAGE
         // ============================================
         const STORAGE_KEY = 'masons-cars-world-images';
-
         const imageSlots = [
             { id: 'background', name: 'Background', hint: 'Radiator Springs scene' },
             { id: 'mcqueen', name: 'McQueen', hint: 'Lightning McQueen' },
@@ -422,28 +465,21 @@
         function loadStoredImages() {
             try {
                 const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    storedImages = JSON.parse(stored);
-                }
-            } catch (e) {
-                console.log('Could not load stored images');
-            }
+                if (stored) storedImages = JSON.parse(stored);
+            } catch (e) {}
         }
 
         function saveImages() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(storedImages));
-            } catch (e) {
-                console.log('Could not save images - storage may be full');
-            }
+            } catch (e) {}
         }
 
         function updateProgress() {
             const count = Object.keys(storedImages).length;
-            const pct = (count / 8) * 100;
-            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressFill').style.width = (count / 8) * 100 + '%';
             document.getElementById('progressText').textContent = `${count} of 8 images added`;
-            document.getElementById('startBtn').disabled = count < 4; // Minimum: background + 3 cars
+            document.getElementById('startBtn').disabled = count < 4;
         }
 
         // ============================================
@@ -451,79 +487,56 @@
         // ============================================
         function createSetupUI() {
             const grid = document.getElementById('imageGrid');
-
             imageSlots.forEach(slot => {
                 const div = document.createElement('div');
                 div.className = 'drop-slot' + (storedImages[slot.id] ? ' has-image' : '');
-                div.id = `slot-${slot.id}`;
                 div.innerHTML = `
                     <div class="label">${slot.name}</div>
                     <div class="hint">${slot.hint}</div>
-                    <input type="file" accept="image/*" id="input-${slot.id}">
-                    ${storedImages[slot.id] ? `<img src="${storedImages[slot.id]}" alt="${slot.name}">` : ''}
+                    <input type="file" accept="image/*">
+                    ${storedImages[slot.id] ? `<img src="${storedImages[slot.id]}">` : ''}
                 `;
                 grid.appendChild(div);
 
                 const input = div.querySelector('input');
-
                 div.addEventListener('click', () => input.click());
-
-                div.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    div.classList.add('dragover');
-                });
-
-                div.addEventListener('dragleave', () => {
-                    div.classList.remove('dragover');
-                });
-
-                div.addEventListener('drop', (e) => {
+                div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('dragover'); });
+                div.addEventListener('dragleave', () => div.classList.remove('dragover'));
+                div.addEventListener('drop', e => {
                     e.preventDefault();
                     div.classList.remove('dragover');
-                    if (e.dataTransfer.files[0]) {
-                        handleFile(e.dataTransfer.files[0], slot.id, div);
-                    }
+                    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0], slot.id, div);
                 });
-
-                input.addEventListener('change', (e) => {
-                    if (e.target.files[0]) {
-                        handleFile(e.target.files[0], slot.id, div);
-                    }
+                input.addEventListener('change', e => {
+                    if (e.target.files[0]) handleFile(e.target.files[0], slot.id, div);
                 });
             });
         }
 
-        function handleFile(file, slotId, slotElement) {
+        function handleFile(file, slotId, el) {
             if (!file.type.startsWith('image/')) return;
-
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const base64 = e.target.result;
-                storedImages[slotId] = base64;
+            reader.onload = e => {
+                storedImages[slotId] = e.target.result;
                 saveImages();
-
-                // Update slot UI
-                slotElement.classList.add('has-image');
-                let img = slotElement.querySelector('img');
-                if (!img) {
-                    img = document.createElement('img');
-                    slotElement.appendChild(img);
-                }
-                img.src = base64;
-
+                el.classList.add('has-image');
+                let img = el.querySelector('img');
+                if (!img) { img = document.createElement('img'); el.appendChild(img); }
+                img.src = e.target.result;
                 updateProgress();
             };
             reader.readAsDataURL(file);
         }
 
         // ============================================
-        // AUDIO ENGINE
+        // AUDIO & VOICE ENGINE
         // ============================================
         class AudioEngine {
             constructor() {
                 this.context = null;
                 this.enabled = true;
                 this.initialized = false;
+                this.synth = window.speechSynthesis;
             }
 
             init() {
@@ -534,7 +547,70 @@
                 } catch (e) {}
             }
 
-            playEngineSound(carType) {
+            // Character voices with phrases
+            speak(character) {
+                if (!this.enabled || !this.synth) return;
+
+                this.synth.cancel(); // Stop any current speech
+
+                const phrases = {
+                    mcqueen: [
+                        "Ka-chow!",
+                        "I am speed!",
+                        "Lightning!",
+                        "Speed, I am speed!",
+                        "Catch me if you can!",
+                        "I'm faster than fast!",
+                        "Ka-chow ka-chow!",
+                        "Float like a Cadillac, sting like a Beemer!"
+                    ],
+                    mater: [
+                        "Dad gum!",
+                        "Git-R-Done!",
+                        "Well shoot!",
+                        "Hey buddy!",
+                        "That's funny right there!",
+                        "I'm the world's best backwards driver!",
+                        "Tow Mater, at your service!",
+                        "My name is Mater, like tomater, but without the tuh!"
+                    ],
+                    mack: [
+                        "You're my hero, Mr McQueen!",
+                        "Keep on truckin'!",
+                        "Haulin' lightning!",
+                        "Let's roll!",
+                        "Big rig coming through!",
+                        "I got your back, champ!",
+                        "On the road again!",
+                        "Rubber side down!"
+                    ]
+                };
+
+                const voiceSettings = {
+                    mcqueen: { pitch: 1.2, rate: 1.15 },  // Confident, energetic
+                    mater: { pitch: 0.85, rate: 0.9 },    // Lower, slower, friendly
+                    mack: { pitch: 0.7, rate: 0.85 }      // Deep, calm, steady
+                };
+
+                const charPhrases = phrases[character] || phrases.mcqueen;
+                const settings = voiceSettings[character] || voiceSettings.mcqueen;
+                const phrase = charPhrases[Math.floor(Math.random() * charPhrases.length)];
+
+                const utterance = new SpeechSynthesisUtterance(phrase);
+                utterance.pitch = settings.pitch;
+                utterance.rate = settings.rate;
+                utterance.volume = 0.8;
+
+                // Try to get a good voice
+                const voices = this.synth.getVoices();
+                const englishVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+                if (englishVoice) utterance.voice = englishVoice;
+
+                this.synth.speak(utterance);
+                return phrase;
+            }
+
+            playEngineSound(carType, intensity = 1) {
                 if (!this.enabled || !this.context) return;
                 if (this.context.state === 'suspended') this.context.resume();
 
@@ -545,24 +621,27 @@
                 const filter = this.context.createBiquadFilter();
 
                 const frequencies = {
-                    mcqueen: { base: 85, mod: 42 },
-                    mack: { base: 55, mod: 27 },
-                    mater: { base: 70, mod: 35 }
+                    mcqueen: { base: 95 * intensity, mod: 47 },
+                    mack: { base: 45, mod: 22 },
+                    mater: { base: 65, mod: 32 }
                 };
                 const freq = frequencies[carType] || frequencies.mcqueen;
 
-                osc1.type = 'sine';
+                osc1.type = 'sawtooth';
                 osc1.frequency.setValueAtTime(freq.base, now);
+                osc1.frequency.linearRampToValueAtTime(freq.base * 1.3, now + 0.1);
+                osc1.frequency.linearRampToValueAtTime(freq.base * 0.9, now + 0.4);
+
                 osc2.type = 'triangle';
                 osc2.frequency.setValueAtTime(freq.mod, now);
 
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(200, now);
+                filter.frequency.setValueAtTime(300 * intensity, now);
 
                 gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.15, now + 0.1);
-                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.3);
-                gainNode.gain.linearRampToValueAtTime(0, now + 0.8);
+                gainNode.gain.linearRampToValueAtTime(0.12 * intensity, now + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0.08, now + 0.2);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
 
                 osc1.connect(filter);
                 osc2.connect(filter);
@@ -571,100 +650,255 @@
 
                 osc1.start(now);
                 osc2.start(now);
-                osc1.stop(now + 0.9);
-                osc2.stop(now + 0.9);
+                osc1.stop(now + 0.6);
+                osc2.stop(now + 0.6);
             }
 
-            playFamilyChime() {
+            playBoostSound() {
                 if (!this.enabled || !this.context) return;
                 if (this.context.state === 'suspended') this.context.resume();
 
                 const now = this.context.currentTime;
                 const osc = this.context.createOscillator();
-                const gainNode = this.context.createGain();
+                const gain = this.context.createGain();
 
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523, now);
-                osc.frequency.setValueAtTime(659, now + 0.1);
-                osc.frequency.setValueAtTime(784, now + 0.2);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(400, now + 0.15);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.4);
 
-                gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05);
-                gainNode.gain.linearRampToValueAtTime(0, now + 0.6);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0, now + 0.4);
 
-                osc.connect(gainNode);
-                gainNode.connect(this.context.destination);
+                osc.connect(gain);
+                gain.connect(this.context.destination);
                 osc.start(now);
-                osc.stop(now + 0.7);
+                osc.stop(now + 0.5);
+            }
+
+            playFamilyChime(name) {
+                if (!this.enabled) return;
+
+                // Play chime sound
+                if (this.context) {
+                    if (this.context.state === 'suspended') this.context.resume();
+                    const now = this.context.currentTime;
+                    const osc = this.context.createOscillator();
+                    const gain = this.context.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523, now);
+                    osc.frequency.setValueAtTime(659, now + 0.1);
+                    osc.frequency.setValueAtTime(784, now + 0.2);
+
+                    gain.gain.setValueAtTime(0, now);
+                    gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.5);
+
+                    osc.connect(gain);
+                    gain.connect(this.context.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                }
+
+                // Speak the name
+                if (this.synth) {
+                    this.synth.cancel();
+                    const utterance = new SpeechSynthesisUtterance(`Hi ${name}!`);
+                    utterance.pitch = 1.1;
+                    utterance.rate = 1.0;
+                    this.synth.speak(utterance);
+                }
             }
 
             toggle() {
                 this.enabled = !this.enabled;
+                if (!this.enabled && this.synth) this.synth.cancel();
                 return this.enabled;
             }
         }
 
         // ============================================
-        // CAR CLASS
+        // RACING CAR CLASS
         // ============================================
-        class Car {
-            constructor(type, imageSrc, roadArea, audio) {
+        class RacingCar {
+            constructor(type, imageSrc, track, audio, raceManager) {
                 this.type = type;
-                this.roadArea = roadArea;
+                this.track = track;
                 this.audio = audio;
+                this.raceManager = raceManager;
+
+                // Racing properties
+                this.lane = { mcqueen: 1, mater: 2, mack: 0 }[type] || 1;
+                this.x = 0;
+                this.baseSpeed = { mcqueen: 1.2, mater: 0.9, mack: 0.75 }[type] || 1;
+                this.currentSpeed = this.baseSpeed;
+                this.targetSpeed = this.baseSpeed;
+                this.boosting = false;
+                this.position = 0;
+
+                // Create element
                 this.element = document.createElement('div');
-                this.element.className = 'car bobbing';
-                this.element.innerHTML = `<img src="${imageSrc}" alt="${type}">`;
+                this.element.className = 'car';
+                this.element.innerHTML = `
+                    <img src="${imageSrc}" alt="${type}">
+                    <div class="speech-bubble" id="bubble-${type}"></div>
+                    <div class="position-badge" id="pos-${type}">1</div>
+                `;
 
-                const sizes = { mcqueen: '18vmin', mack: '30vmin', mater: '16vmin' };
-                this.element.style.height = sizes[type] || '15vmin';
+                const sizes = { mcqueen: '16vmin', mack: '28vmin', mater: '14vmin' };
+                this.element.style.height = sizes[type] || '14vmin';
 
-                const verticalPositions = { mcqueen: '20%', mack: '5%', mater: '35%' };
-                this.element.style.top = verticalPositions[type] || '25%';
+                // Random start position (staggered start)
+                const startOffset = { mcqueen: 0.1, mater: 0.15, mack: 0.05 }[type] || 0.1;
+                this.x = window.innerWidth * (1 + startOffset);
 
-                this.duration = 15000 + Math.random() * 10000;
-                const startOffsets = { mcqueen: 0, mack: 0.3, mater: 0.6 };
-                this.startOffset = startOffsets[type] || 0;
-
-                this.roadArea.appendChild(this.element);
+                this.updatePosition();
+                track.appendChild(this.element);
                 this.setupInteraction();
-                this.startAnimation();
+            }
+
+            updatePosition() {
+                this.element.style.left = this.x + 'px';
+                // Lane positions (percentage of track height)
+                const laneY = [5, 35, 65][this.lane] || 35;
+                this.element.style.top = laneY + '%';
+            }
+
+            showSpeech(text) {
+                const bubble = this.element.querySelector('.speech-bubble');
+                bubble.textContent = text;
+                bubble.classList.add('visible');
+                setTimeout(() => bubble.classList.remove('visible'), 2000);
+            }
+
+            updatePositionBadge(pos) {
+                const badge = this.element.querySelector('.position-badge');
+                badge.textContent = pos;
             }
 
             setupInteraction() {
                 const handleTap = (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
+
+                    // Visual feedback
                     this.element.classList.add('tapped');
-                    this.audio.playEngineSound(this.type);
-                    setTimeout(() => this.element.classList.remove('tapped'), 300);
+                    setTimeout(() => this.element.classList.remove('tapped'), 200);
+
+                    // Speak and show bubble
+                    const phrase = this.audio.speak(this.type);
+                    if (phrase) this.showSpeech(phrase);
+
+                    // Engine rev
+                    this.audio.playEngineSound(this.type, 1.5);
+
+                    // Boost!
+                    this.boost();
                 };
+
                 this.element.addEventListener('touchstart', handleTap, { passive: false });
                 this.element.addEventListener('click', handleTap);
             }
 
-            startAnimation() {
-                const animate = () => {
-                    const screenWidth = window.innerWidth;
-                    const carWidth = this.element.offsetWidth || 200;
-                    const startX = screenWidth + carWidth;
-                    const endX = -carWidth - 50;
-                    const totalDistance = startX - endX;
-                    let startTime = null;
-                    let initialOffset = totalDistance * this.startOffset;
+            boost() {
+                if (this.boosting) return;
+                this.boosting = true;
+                this.element.classList.add('boosting');
+                this.targetSpeed = this.baseSpeed * 2.5;
+                this.audio.playBoostSound();
 
-                    const step = (timestamp) => {
-                        if (!startTime) startTime = timestamp;
-                        const elapsed = timestamp - startTime;
-                        const progress = (elapsed / this.duration) + (initialOffset / totalDistance);
-                        const adjustedProgress = progress % 1;
-                        const currentX = startX - (adjustedProgress * totalDistance);
-                        this.element.style.left = `${currentX}px`;
-                        if (progress >= 1) initialOffset = 0;
-                        requestAnimationFrame(step);
-                    };
-                    requestAnimationFrame(step);
-                };
-                animate();
+                setTimeout(() => {
+                    this.boosting = false;
+                    this.element.classList.remove('boosting');
+                    this.targetSpeed = this.baseSpeed;
+                }, 1500);
+            }
+
+            update(deltaTime) {
+                // Smooth speed changes
+                this.currentSpeed += (this.targetSpeed - this.currentSpeed) * 0.1;
+
+                // Add some natural variation
+                if (!this.boosting && Math.random() < 0.02) {
+                    this.targetSpeed = this.baseSpeed * (0.7 + Math.random() * 0.6);
+                }
+
+                // Move car (right to left)
+                const pixelsPerSecond = this.currentSpeed * 150;
+                this.x -= pixelsPerSecond * deltaTime;
+
+                // Wrap around
+                const carWidth = this.element.offsetWidth || 200;
+                if (this.x < -carWidth) {
+                    this.x = window.innerWidth + carWidth + Math.random() * 100;
+                    // Random lane change on wrap
+                    if (Math.random() < 0.5) {
+                        this.changeLane();
+                    }
+                }
+
+                // Occasional lane changes during race
+                if (Math.random() < 0.003) {
+                    this.changeLane();
+                }
+
+                // Random boost (rare)
+                if (!this.boosting && Math.random() < 0.001) {
+                    this.boost();
+                }
+
+                this.updatePosition();
+            }
+
+            changeLane() {
+                const newLane = Math.floor(Math.random() * 3);
+                if (newLane !== this.lane) {
+                    this.lane = newLane;
+                }
+            }
+        }
+
+        // ============================================
+        // RACE MANAGER
+        // ============================================
+        class RaceManager {
+            constructor(cars) {
+                this.cars = cars;
+                this.lastTime = 0;
+                this.running = false;
+            }
+
+            start() {
+                this.running = true;
+                this.lastTime = performance.now();
+                this.update();
+            }
+
+            update() {
+                if (!this.running) return;
+
+                const now = performance.now();
+                const deltaTime = (now - this.lastTime) / 1000;
+                this.lastTime = now;
+
+                // Update all cars
+                this.cars.forEach(car => car.update(deltaTime));
+
+                // Calculate positions based on X (leftmost = winning)
+                const sorted = [...this.cars].sort((a, b) => a.x - b.x);
+                sorted.forEach((car, index) => {
+                    car.position = index + 1;
+                    car.updatePositionBadge(index + 1);
+                });
+
+                // Update race status
+                const leader = sorted[0];
+                const statusEl = document.getElementById('raceStatus');
+                const names = { mcqueen: 'McQueen', mater: 'Mater', mack: 'Mack' };
+                statusEl.textContent = `${names[leader.type]} is leading!`;
+
+                requestAnimationFrame(() => this.update());
             }
         }
 
@@ -673,7 +907,9 @@
         // ============================================
         class FamilyPhoto {
             constructor(name, imageSrc, container, audio) {
+                this.name = name;
                 this.audio = audio;
+
                 const wrapper = document.createElement('div');
                 wrapper.className = 'photo-wrapper';
 
@@ -681,31 +917,28 @@
                 this.element.className = 'family-photo';
                 this.element.innerHTML = `<img src="${imageSrc}" alt="${name}">`;
 
-                const nameLabel = document.createElement('div');
-                nameLabel.className = 'photo-name';
-                nameLabel.textContent = name;
+                const label = document.createElement('div');
+                label.className = 'photo-name';
+                label.textContent = name;
 
                 wrapper.appendChild(this.element);
-                wrapper.appendChild(nameLabel);
+                wrapper.appendChild(label);
                 container.appendChild(wrapper);
 
-                this.setupInteraction();
-            }
-
-            setupInteraction() {
                 const handleTap = (e) => {
                     e.preventDefault();
                     this.element.classList.add('glowing');
-                    this.audio.playFamilyChime();
-                    setTimeout(() => this.element.classList.remove('glowing'), 600);
+                    this.audio.playFamilyChime(name);
+                    setTimeout(() => this.element.classList.remove('glowing'), 800);
                 };
+
                 this.element.addEventListener('touchstart', handleTap, { passive: false });
                 this.element.addEventListener('click', handleTap);
             }
         }
 
         // ============================================
-        // MAIN APP
+        // START APP
         // ============================================
         let audio = new AudioEngine();
 
@@ -713,24 +946,36 @@
             document.getElementById('setupOverlay').classList.add('hidden');
             document.getElementById('appContainer').classList.remove('hidden');
 
-            // Set background
+            // Background
             if (storedImages.background) {
                 document.getElementById('background').style.backgroundImage = `url("${storedImages.background}")`;
             }
 
-            const roadArea = document.getElementById('roadArea');
+            const track = document.getElementById('raceTrack');
             const familyBar = document.getElementById('familyBar');
 
-            // Initialize audio on interaction
+            // Init audio
             document.addEventListener('touchstart', () => audio.init(), { once: true });
             document.addEventListener('click', () => audio.init(), { once: true });
 
-            // Create cars
-            if (storedImages.mcqueen) new Car('mcqueen', storedImages.mcqueen, roadArea, audio);
-            if (storedImages.mack) new Car('mack', storedImages.mack, roadArea, audio);
-            if (storedImages.mater) new Car('mater', storedImages.mater, roadArea, audio);
+            // Load voices
+            if (window.speechSynthesis) {
+                window.speechSynthesis.getVoices();
+            }
 
-            // Create family photos
+            // Create racing cars
+            const cars = [];
+            if (storedImages.mcqueen) cars.push(new RacingCar('mcqueen', storedImages.mcqueen, track, audio, null));
+            if (storedImages.mack) cars.push(new RacingCar('mack', storedImages.mack, track, audio, null));
+            if (storedImages.mater) cars.push(new RacingCar('mater', storedImages.mater, track, audio, null));
+
+            // Start race
+            if (cars.length > 0) {
+                const raceManager = new RaceManager(cars);
+                raceManager.start();
+            }
+
+            // Family photos
             if (storedImages.mason) new FamilyPhoto('Mason', storedImages.mason, familyBar, audio);
             if (storedImages.lola) new FamilyPhoto('Lola', storedImages.lola, familyBar, audio);
             if (storedImages.mam) new FamilyPhoto('Mam', storedImages.mam, familyBar, audio);
@@ -738,28 +983,18 @@
 
             // Sound toggle
             const soundToggle = document.getElementById('soundToggle');
-            const handleSoundToggle = (e) => {
+            const handleSound = (e) => {
                 e.preventDefault();
                 audio.init();
                 const enabled = audio.toggle();
                 soundToggle.textContent = enabled ? '🔊' : '🔇';
                 soundToggle.classList.toggle('muted', !enabled);
             };
-            soundToggle.addEventListener('touchstart', handleSoundToggle, { passive: false });
-            soundToggle.addEventListener('click', handleSoundToggle);
+            soundToggle.addEventListener('touchstart', handleSound, { passive: false });
+            soundToggle.addEventListener('click', handleSound);
 
-            // Settings button (return to setup)
-            const settingsBtn = document.getElementById('settingsBtn');
-            settingsBtn.addEventListener('click', () => {
-                location.reload();
-            });
-
-            // Prevent scroll
-            document.addEventListener('touchmove', (e) => {
-                if (e.target.closest('.car') || e.target.closest('.family-photo')) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
+            // Settings
+            document.getElementById('settingsBtn').addEventListener('click', () => location.reload());
         }
 
         // ============================================
@@ -770,16 +1005,15 @@
         updateProgress();
 
         document.getElementById('startBtn').addEventListener('click', startApp);
-
         document.getElementById('resetBtn').addEventListener('click', () => {
-            if (confirm('Remove all images and start over?')) {
+            if (confirm('Remove all images?')) {
                 localStorage.removeItem(STORAGE_KEY);
                 location.reload();
             }
         });
 
-        // Auto-start if all images are loaded
-        if (Object.keys(storedImages).length === 8) {
+        // Auto-start if images loaded
+        if (Object.keys(storedImages).length >= 4) {
             startApp();
         }
     </script>
