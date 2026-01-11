@@ -202,7 +202,7 @@
             <input type="file" accept="image/*" onchange="addImg(this,'dad')">
         </div>
     </div>
-    <div id="startBtn" style="display:block;width:80%;max-width:250px;margin:20px auto;padding:15px;font-size:18px;font-weight:bold;color:white;background:#ff6b6b;border:none;border-radius:25px;text-align:center;cursor:pointer;-webkit-tap-highlight-color:rgba(255,107,107,0.5);">Start Racing!</div>
+    <button type="button" onclick="startApp()">Start Racing!</button>
 </div>
 
 <div id="app">
@@ -404,21 +404,6 @@ function toggleSound() {
     soundOn = !soundOn;
     document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
 }
-
-// Attach event listeners when page loads
-document.addEventListener('DOMContentLoaded', function() {
-    var startBtn = document.getElementById('startBtn');
-    if (startBtn) {
-        startBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            startApp();
-        }, {passive: false});
-        startBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            startApp();
-        });
-    }
-});
 </script>
 
 </body>
