@@ -452,25 +452,50 @@
         ];
 
         let storedImages = {};
+        let storageAvailable = true;
+
+        // Check if localStorage works (fails in Safari private mode)
+        function checkStorage() {
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
 
         function loadStoredImages() {
+            storageAvailable = checkStorage();
+            if (!storageAvailable) return;
             try {
                 const stored = localStorage.getItem(STORAGE_KEY);
                 if (stored) storedImages = JSON.parse(stored);
-            } catch (e) {}
+            } catch (e) {
+                console.log('Could not load images');
+            }
         }
 
         function saveImages() {
+            if (!storageAvailable) return;
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(storedImages));
-            } catch (e) {}
+            } catch (e) {
+                // Storage full or private mode - continue without saving
+                console.log('Could not save to storage');
+            }
         }
 
         function updateProgress() {
             const count = Object.keys(storedImages).length;
-            document.getElementById('progressFill').style.width = (count / 8) * 100 + '%';
-            document.getElementById('progressText').textContent = `${count} of 8 images added`;
-            document.getElementById('startBtn').disabled = count < 4;
+            const pct = (count / 8) * 100;
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const startBtn = document.getElementById('startBtn');
+
+            if (progressFill) progressFill.style.width = pct + '%';
+            if (progressText) progressText.textContent = `${count} of 8 images added`;
+            if (startBtn) startBtn.disabled = count < 4;
         }
 
         // ============================================
@@ -484,13 +509,24 @@
                 div.innerHTML = `
                     <div class="label">${slot.name}</div>
                     <div class="hint">${slot.hint}</div>
-                    <input type="file" accept="image/*">
+                    <input type="file" accept="image/*" capture="environment">
                     ${storedImages[slot.id] ? `<img src="${storedImages[slot.id]}">` : ''}
                 `;
                 grid.appendChild(div);
 
                 const input = div.querySelector('input');
-                div.addEventListener('click', () => input.click());
+
+                // iPad/iOS fix: use touchend instead of click for better response
+                const triggerInput = (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    input.click();
+                };
+
+                div.addEventListener('touchend', triggerInput, { passive: false });
+                div.addEventListener('click', triggerInput);
+
+                // Drag and drop (desktop)
                 div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('dragover'); });
                 div.addEventListener('dragleave', () => div.classList.remove('dragover'));
                 div.addEventListener('drop', e => {
@@ -498,6 +534,7 @@
                     div.classList.remove('dragover');
                     if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0], slot.id, div);
                 });
+
                 input.addEventListener('change', e => {
                     if (e.target.files[0]) handleFile(e.target.files[0], slot.id, div);
                 });
@@ -505,17 +542,26 @@
         }
 
         function handleFile(file, slotId, el) {
-            if (!file.type.startsWith('image/')) return;
+            if (!file || !file.type.startsWith('image/')) return;
+
             const reader = new FileReader();
             reader.onload = e => {
-                storedImages[slotId] = e.target.result;
-                saveImages();
-                el.classList.add('has-image');
-                let img = el.querySelector('img');
-                if (!img) { img = document.createElement('img'); el.appendChild(img); }
-                img.src = e.target.result;
-                updateProgress();
+                try {
+                    storedImages[slotId] = e.target.result;
+                    saveImages();
+                    el.classList.add('has-image');
+                    let img = el.querySelector('img');
+                    if (!img) {
+                        img = document.createElement('img');
+                        el.appendChild(img);
+                    }
+                    img.src = e.target.result;
+                    updateProgress();
+                } catch (err) {
+                    console.log('Error saving image:', err);
+                }
             };
+            reader.onerror = () => console.log('Error reading file');
             reader.readAsDataURL(file);
         }
 
@@ -530,17 +576,37 @@
             }
 
             init() {
-                if (this.initialized) return;
+                if (this.initialized && this.context) return;
                 try {
-                    this.context = new (window.AudioContext || window.webkitAudioContext)();
+                    // iOS Safari requires webkit prefix
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContext) return;
+
+                    this.context = new AudioContext();
                     this.initialized = true;
-                } catch (e) {}
+
+                    // iOS requires resume after user interaction
+                    if (this.context.state === 'suspended') {
+                        this.context.resume();
+                    }
+                } catch (e) {
+                    console.log('Audio not available');
+                }
+            }
+
+            // Ensure audio is ready (call before playing)
+            ensureReady() {
+                if (!this.context) this.init();
+                if (this.context && this.context.state === 'suspended') {
+                    this.context.resume();
+                }
             }
 
             // Distinctive car sounds for each character
             playEngineSound(carType) {
-                if (!this.enabled || !this.context) return;
-                if (this.context.state === 'suspended') this.context.resume();
+                if (!this.enabled) return;
+                this.ensureReady();
+                if (!this.context) return;
 
                 const now = this.context.currentTime;
 
@@ -710,8 +776,9 @@
             }
 
             playBoostSound() {
-                if (!this.enabled || !this.context) return;
-                if (this.context.state === 'suspended') this.context.resume();
+                if (!this.enabled) return;
+                this.ensureReady();
+                if (!this.context) return;
 
                 const now = this.context.currentTime;
                 const osc = this.context.createOscillator();
@@ -752,8 +819,9 @@
 
             // Light, magical sparkle sound for family photos
             playFamilySparkle() {
-                if (!this.enabled || !this.context) return;
-                if (this.context.state === 'suspended') this.context.resume();
+                if (!this.enabled) return;
+                this.ensureReady();
+                if (!this.context) return;
 
                 const now = this.context.currentTime;
 
