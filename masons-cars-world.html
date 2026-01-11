@@ -149,6 +149,11 @@
         }
         #backBtn { left: 10px; }
         #soundBtn { right: 10px; }
+        .fam { position: relative; }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.5); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.2); }
+        }
     </style>
 </head>
 <body>
@@ -282,13 +287,17 @@ function makeCar(id, src) {
     };
     cars.push(car);
 
-    div.onclick = function() {
+    function tapCar() {
         playSound(id);
         car.speed = car.speed * 2;
+        div.style.transform = 'scale(1.15)';
         setTimeout(function() {
             car.speed = (id === 'mcqueen' ? 2.5 : id === 'mack' ? 1.2 : 1.8);
+            div.style.transform = 'scale(1)';
         }, 800);
-    };
+    }
+    div.ontouchstart = tapCar;
+    div.onclick = tapCar;
 }
 
 function runAnimation() {
@@ -309,9 +318,30 @@ function makeFam(name, src) {
     div.innerHTML = '<img src="' + src + '"><p>' + name + '</p>';
     document.getElementById('family').appendChild(div);
 
-    div.onclick = function() {
+    function tapFam() {
         playSound('sparkle');
-    };
+        // Make image glow
+        var img = div.querySelector('img');
+        img.style.boxShadow = '0 0 20px gold';
+        img.style.borderColor = 'gold';
+        setTimeout(function() {
+            img.style.boxShadow = '';
+            img.style.borderColor = 'white';
+        }, 600);
+        // Emoji particles
+        var emojis = ['❤️','⭐','💖','✨','💕','🌟'];
+        for (var i = 0; i < 6; i++) {
+            var p = document.createElement('span');
+            p.textContent = emojis[i];
+            p.style.cssText = 'position:absolute;font-size:20px;pointer-events:none;animation:floatUp 1s forwards;left:' + (Math.random()*60+20) + '%;top:0;';
+            div.appendChild(p);
+            (function(el) {
+                setTimeout(function() { el.remove(); }, 1000);
+            })(p);
+        }
+    }
+    div.ontouchstart = tapFam;
+    div.onclick = tapFam;
 }
 
 function initAudio() {
