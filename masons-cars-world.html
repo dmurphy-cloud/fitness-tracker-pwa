@@ -1,63 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Mason's Cars World</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
             font-family: -apple-system, sans-serif;
-            background: #1a1a2e;
+            background: #1e1e3f;
+            color: white;
+            min-height: 100vh;
         }
-
-        /* SETUP SCREEN */
-        #setup {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        h1 {
+            text-align: center;
+            color: #ff6b6b;
             padding: 20px;
-            overflow-y: auto;
-            z-index: 1000;
+            font-size: 22px;
         }
-        #setup.hidden { display: none; }
-        .title { color: #ff6b6b; font-size: 24px; text-align: center; margin-bottom: 20px; }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            max-width: 700px;
-            margin: 0 auto 20px;
+        .slots {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 10px;
+            gap: 10px;
         }
         .slot {
+            width: 45%;
+            max-width: 160px;
             background: rgba(255,255,255,0.1);
-            border: 2px dashed rgba(255,255,255,0.3);
-            border-radius: 12px;
-            padding: 12px;
+            border: 2px dashed #666;
+            border-radius: 10px;
+            padding: 15px 10px;
             text-align: center;
-            min-height: 120px;
         }
-        .slot.done { border: 2px solid #4ecdc4; }
-        .slot .name { color: #ffd93d; font-weight: bold; font-size: 14px; }
-        .slot .hint { color: #888; font-size: 11px; margin: 4px 0; }
-        .slot img { max-width: 100%; max-height: 60px; border-radius: 6px; margin-top: 6px; }
-        .slot input { display: none; }
-        .btn {
+        .slot.done {
+            border: 2px solid #4ecdc4;
+        }
+        .slot b {
             display: block;
-            width: 200px;
+            color: #ffd93d;
+            font-size: 14px;
+        }
+        .slot span {
+            display: block;
+            color: #999;
+            font-size: 11px;
+            margin: 5px 0;
+        }
+        .slot img {
+            max-width: 80px;
+            max-height: 50px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .slot input {
+            display: block;
+            width: 100%;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        button {
+            display: block;
+            width: 80%;
+            max-width: 250px;
             margin: 20px auto;
-            padding: 16px;
+            padding: 15px;
             font-size: 18px;
             font-weight: bold;
             color: white;
@@ -65,138 +74,241 @@
             border: none;
             border-radius: 25px;
         }
-        .btn:disabled { background: #555; }
-
-        /* MAIN APP */
-        #app {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            display: none;
+        button:disabled {
+            background: #555;
         }
-        #app.visible { display: block; }
+
+        /* APP */
+        #app {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #1e1e3f;
+        }
+        #app.show { display: block; }
         #bg {
             position: absolute;
-            inset: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-size: cover;
             background-position: center;
         }
         #track {
             position: absolute;
-            bottom: 14%;
+            bottom: 15%;
             left: 0;
             width: 100%;
-            height: 40%;
+            height: 35%;
         }
         .car {
             position: absolute;
-            height: 15vmin;
-            cursor: pointer;
-            transition: transform 0.2s;
+            height: 14vmin;
         }
-        .car img { height: 100%; width: auto; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4)); }
-        .car.tap { transform: scale(1.15); }
-        #mcqueen { height: 16vmin; }
-        #mack { height: 26vmin; }
-        #mater { height: 14vmin; }
+        .car img {
+            height: 100%;
+            width: auto;
+        }
+        #mcqueen { height: 15vmin; top: 30%; }
+        #mack { height: 24vmin; top: 5%; }
+        #mater { height: 13vmin; top: 55%; }
 
         #family {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 13%;
-            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            height: 14%;
+            background: rgba(0,0,0,0.6);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 4vw;
+            gap: 3vw;
         }
-        .photo-wrap { text-align: center; position: relative; }
-        .photo {
-            width: 11vmin;
-            height: 11vmin;
+        .fam {
+            text-align: center;
+        }
+        .fam img {
+            width: 10vmin;
+            height: 10vmin;
             border-radius: 50%;
-            overflow: hidden;
-            border: 3px solid rgba(255,255,255,0.5);
-            transition: all 0.3s;
+            border: 2px solid white;
+            object-fit: cover;
         }
-        .photo img { width: 100%; height: 100%; object-fit: cover; }
-        .photo.glow {
-            border-color: gold;
-            box-shadow: 0 0 20px gold;
-            transform: scale(1.1);
+        .fam p {
+            font-size: 10px;
+            margin-top: 3px;
         }
-        .photo-name { color: white; font-size: 2vmin; margin-top: 4px; }
-        .particle {
+        .topbtn {
             position: absolute;
-            font-size: 18px;
-            animation: floatUp 1.2s ease-out forwards;
-            pointer-events: none;
-        }
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(0.5); }
-            100% { opacity: 0; transform: translateY(-60px) scale(1); }
-        }
-        .ctrl {
-            position: absolute;
-            top: 15px;
-            width: 50px;
-            height: 50px;
+            top: 10px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.3);
             border: none;
-            font-size: 22px;
-            z-index: 100;
+            font-size: 20px;
         }
-        #soundBtn { right: 15px; }
-        #backBtn { left: 15px; }
+        #backBtn { left: 10px; }
+        #soundBtn { right: 10px; }
     </style>
 </head>
 <body>
 
-<!-- SETUP -->
 <div id="setup">
-    <div class="title">Mason's Cars World</div>
-    <div class="grid">
-        <div class="slot" data-id="background"><div class="name">Background</div><div class="hint">Radiator Springs</div><input type="file" accept="image/*"></div>
-        <div class="slot" data-id="mcqueen"><div class="name">McQueen</div><div class="hint">Red race car</div><input type="file" accept="image/*"></div>
-        <div class="slot" data-id="mack"><div class="name">Mack</div><div class="hint">Big truck</div><input type="file" accept="image/*"></div>
-        <div class="slot" data-id="mater"><div class="name">Mater</div><div class="hint">Tow truck</div><input type="file" accept="image/*"></div>
-        <div class="slot" data-id="mason"><div class="name">Mason</div><div class="hint">Photo</div><input type="file" accept="image/*"></div>
-        <div class="slot" data-id="lola"><div class="name">Lola</div><div class="hint">Photo</div><input type="file" accept="image/*"></div>
-        <div class="slot" data-id="mam"><div class="name">Mam</div><div class="hint">Photo</div><input type="file" accept="image/*"></div>
-        <div class="slot" data-id="dad"><div class="name">Dad</div><div class="hint">Photo</div><input type="file" accept="image/*"></div>
+    <h1>Mason's Cars World</h1>
+    <div class="slots">
+        <div class="slot" id="s-background">
+            <b>Background</b>
+            <span>Radiator Springs</span>
+            <input type="file" accept="image/*" onchange="addImg(this,'background')">
+        </div>
+        <div class="slot" id="s-mcqueen">
+            <b>McQueen</b>
+            <span>Red race car</span>
+            <input type="file" accept="image/*" onchange="addImg(this,'mcqueen')">
+        </div>
+        <div class="slot" id="s-mack">
+            <b>Mack</b>
+            <span>Big truck</span>
+            <input type="file" accept="image/*" onchange="addImg(this,'mack')">
+        </div>
+        <div class="slot" id="s-mater">
+            <b>Mater</b>
+            <span>Tow truck</span>
+            <input type="file" accept="image/*" onchange="addImg(this,'mater')">
+        </div>
+        <div class="slot" id="s-mason">
+            <b>Mason</b>
+            <span>Photo</span>
+            <input type="file" accept="image/*" onchange="addImg(this,'mason')">
+        </div>
+        <div class="slot" id="s-lola">
+            <b>Lola</b>
+            <span>Photo</span>
+            <input type="file" accept="image/*" onchange="addImg(this,'lola')">
+        </div>
+        <div class="slot" id="s-mam">
+            <b>Mam</b>
+            <span>Photo</span>
+            <input type="file" accept="image/*" onchange="addImg(this,'mam')">
+        </div>
+        <div class="slot" id="s-dad">
+            <b>Dad</b>
+            <span>Photo</span>
+            <input type="file" accept="image/*" onchange="addImg(this,'dad')">
+        </div>
     </div>
-    <button class="btn" id="startBtn" disabled>Start Racing!</button>
+    <button id="startBtn" disabled onclick="startApp()">Start Racing!</button>
 </div>
 
-<!-- APP -->
 <div id="app">
     <div id="bg"></div>
     <div id="track"></div>
     <div id="family"></div>
-    <button class="ctrl" id="backBtn">⚙️</button>
-    <button class="ctrl" id="soundBtn">🔊</button>
+    <button class="topbtn" id="backBtn" onclick="location.reload()">⚙️</button>
+    <button class="topbtn" id="soundBtn" onclick="toggleSound()">🔊</button>
 </div>
 
 <script>
-// Simple image storage
-const images = {};
-const slots = [
-    {id:'background', name:'Background', hint:'Radiator Springs'},
-    {id:'mcqueen', name:'McQueen', hint:'Red race car'},
-    {id:'mack', name:'Mack', hint:'Big truck'},
-    {id:'mater', name:'Mater', hint:'Tow truck'},
-    {id:'mason', name:'Mason', hint:'Photo'},
-    {id:'lola', name:'Lola', hint:'Photo'},
-    {id:'mam', name:'Mam', hint:'Photo'},
-    {id:'dad', name:'Dad', hint:'Photo'}
-];
+var imgs = {};
+var soundOn = true;
+var audioCtx = null;
 
-// Audio
-let audioCtx = null;
-let soundOn = true;
+function addImg(input, id) {
+    var file = input.files[0];
+    if (!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        imgs[id] = e.target.result;
+
+        var slot = document.getElementById('s-' + id);
+        slot.classList.add('done');
+
+        var img = slot.querySelector('img');
+        if (!img) {
+            img = document.createElement('img');
+            slot.appendChild(img);
+        }
+        img.src = e.target.result;
+
+        checkReady();
+    };
+    reader.readAsDataURL(file);
+}
+
+function checkReady() {
+    var count = Object.keys(imgs).length;
+    document.getElementById('startBtn').disabled = (count < 4);
+}
+
+function startApp() {
+    document.getElementById('setup').style.display = 'none';
+    document.getElementById('app').classList.add('show');
+
+    if (imgs.background) {
+        document.getElementById('bg').style.backgroundImage = 'url(' + imgs.background + ')';
+    }
+
+    if (imgs.mcqueen) makeCar('mcqueen', imgs.mcqueen);
+    if (imgs.mack) makeCar('mack', imgs.mack);
+    if (imgs.mater) makeCar('mater', imgs.mater);
+
+    if (imgs.mason) makeFam('Mason', imgs.mason);
+    if (imgs.lola) makeFam('Lola', imgs.lola);
+    if (imgs.mam) makeFam('Mam', imgs.mam);
+    if (imgs.dad) makeFam('Dad', imgs.dad);
+
+    runAnimation();
+}
+
+var cars = [];
+
+function makeCar(id, src) {
+    var div = document.createElement('div');
+    div.className = 'car';
+    div.id = id;
+    div.innerHTML = '<img src="' + src + '">';
+    document.getElementById('track').appendChild(div);
+
+    var car = {
+        el: div,
+        id: id,
+        x: window.innerWidth + Math.random() * 200,
+        speed: (id === 'mcqueen' ? 2.5 : id === 'mack' ? 1.2 : 1.8)
+    };
+    cars.push(car);
+
+    div.onclick = function() {
+        playSound(id);
+        car.speed = car.speed * 2;
+        setTimeout(function() {
+            car.speed = (id === 'mcqueen' ? 2.5 : id === 'mack' ? 1.2 : 1.8);
+        }, 800);
+    };
+}
+
+function runAnimation() {
+    for (var i = 0; i < cars.length; i++) {
+        var car = cars[i];
+        car.x = car.x - car.speed;
+        if (car.x < -300) {
+            car.x = window.innerWidth + 100;
+        }
+        car.el.style.left = car.x + 'px';
+    }
+    requestAnimationFrame(runAnimation);
+}
+
+function makeFam(name, src) {
+    var div = document.createElement('div');
+    div.className = 'fam';
+    div.innerHTML = '<img src="' + src + '"><p>' + name + '</p>';
+    document.getElementById('family').appendChild(div);
+
+    div.onclick = function() {
+        playSound('sparkle');
+    };
+}
 
 function initAudio() {
     if (audioCtx) return;
@@ -206,16 +318,16 @@ function initAudio() {
 }
 
 function playSound(type) {
+    initAudio();
     if (!soundOn || !audioCtx) return;
     if (audioCtx.state === 'suspended') audioCtx.resume();
 
-    const now = audioCtx.currentTime;
-    const gain = audioCtx.createGain();
+    var now = audioCtx.currentTime;
+    var gain = audioCtx.createGain();
     gain.connect(audioCtx.destination);
 
     if (type === 'mcqueen') {
-        // Race car vroom
-        const osc = audioCtx.createOscillator();
+        var osc = audioCtx.createOscillator();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(100, now);
         osc.frequency.exponentialRampToValueAtTime(400, now + 0.3);
@@ -226,8 +338,7 @@ function playSound(type) {
         osc.start(now);
         osc.stop(now + 0.9);
     } else if (type === 'mater') {
-        // Tow truck beep beep
-        const osc = audioCtx.createOscillator();
+        var osc = audioCtx.createOscillator();
         osc.type = 'sine';
         osc.frequency.value = 380;
         gain.gain.setValueAtTime(0, now);
@@ -239,191 +350,32 @@ function playSound(type) {
         osc.start(now);
         osc.stop(now + 0.4);
     } else if (type === 'mack') {
-        // Big truck horn
-        const osc1 = audioCtx.createOscillator();
-        const osc2 = audioCtx.createOscillator();
-        osc1.type = 'sine';
-        osc1.frequency.value = 130;
-        osc2.type = 'sine';
-        osc2.frequency.value = 165;
+        var osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 130;
         gain.gain.setValueAtTime(0.15, now);
         gain.gain.linearRampToValueAtTime(0, now + 0.7);
-        osc1.connect(gain);
-        osc2.connect(gain);
-        osc1.start(now);
-        osc2.start(now);
-        osc1.stop(now + 0.8);
-        osc2.stop(now + 0.8);
+        osc.connect(gain);
+        osc.start(now);
+        osc.stop(now + 0.8);
     } else if (type === 'sparkle') {
-        // Family sparkle
-        [600, 800, 1000].forEach((f, i) => {
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = f;
-            g.gain.setValueAtTime(0.06, now + i*0.08);
-            g.gain.linearRampToValueAtTime(0, now + i*0.08 + 0.3);
-            osc.connect(g);
-            g.connect(audioCtx.destination);
-            osc.start(now + i*0.08);
-            osc.stop(now + i*0.08 + 0.35);
-        });
+        var osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 800;
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.3);
+        osc.connect(gain);
+        osc.start(now);
+        osc.stop(now + 0.35);
     }
 }
 
-// Setup UI
-function setupSlots() {
-    document.querySelectorAll('.slot').forEach(div => {
-        const id = div.getAttribute('data-id');
-        const input = div.querySelector('input');
-
-        div.onclick = function() { input.click(); };
-
-        input.onchange = function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                images[id] = ev.target.result;
-                div.classList.add('done');
-                var img = div.querySelector('img');
-                if (!img) {
-                    img = document.createElement('img');
-                    div.appendChild(img);
-                }
-                img.src = ev.target.result;
-                checkReady();
-            };
-            reader.readAsDataURL(file);
-        };
-    });
-}
-
-function checkReady() {
-    const count = Object.keys(images).length;
-    document.getElementById('startBtn').disabled = count < 4;
-}
-
-// Cars animation
-let cars = [];
-let animating = false;
-
-function createCar(id, src) {
-    const el = document.createElement('div');
-    el.className = 'car';
-    el.id = id;
-    el.innerHTML = `<img src="${src}">`;
-    document.getElementById('track').appendChild(el);
-
-    const speed = {mcqueen: 1.2, mack: 0.7, mater: 0.95}[id] || 1;
-    const lane = {mcqueen: 35, mack: 10, mater: 60}[id] || 35;
-    const car = {
-        el: el,
-        id: id,
-        x: window.innerWidth + Math.random() * 200,
-        speed: speed,
-        lane: lane
-    };
-
-    el.style.top = lane + '%';
-    cars.push(car);
-
-    el.ontouchstart = el.onclick = (e) => {
-        e.preventDefault();
-        initAudio();
-        el.classList.add('tap');
-        playSound(id);
-        car.speed = speed * 2;
-        setTimeout(() => {
-            el.classList.remove('tap');
-            car.speed = speed;
-        }, 800);
-    };
-}
-
-function animate() {
-    if (!animating) return;
-
-    cars.forEach(car => {
-        car.x -= car.speed * 2;
-        if (car.x < -300) {
-            car.x = window.innerWidth + 100 + Math.random() * 200;
-        }
-        car.el.style.left = car.x + 'px';
-    });
-
-    requestAnimationFrame(animate);
-}
-
-// Family photos
-function createFamily(name, src) {
-    const wrap = document.createElement('div');
-    wrap.className = 'photo-wrap';
-    wrap.innerHTML = `<div class="photo"><img src="${src}"></div><div class="photo-name">${name}</div>`;
-    document.getElementById('family').appendChild(wrap);
-
-    const photo = wrap.querySelector('.photo');
-    photo.ontouchstart = photo.onclick = (e) => {
-        e.preventDefault();
-        initAudio();
-        photo.classList.add('glow');
-        playSound('sparkle');
-
-        // Hearts and stars
-        const emojis = ['❤️','⭐','💖','✨','💕','🌟'];
-        for (let i = 0; i < 6; i++) {
-            const p = document.createElement('div');
-            p.className = 'particle';
-            p.textContent = emojis[i];
-            p.style.left = (20 + Math.random() * 60) + '%';
-            p.style.top = '20%';
-            p.style.animationDelay = (i * 0.1) + 's';
-            wrap.appendChild(p);
-            setTimeout(() => p.remove(), 1500);
-        }
-
-        setTimeout(() => photo.classList.remove('glow'), 600);
-    };
-}
-
-// Start app
-function startApp() {
-    document.getElementById('setup').classList.add('hidden');
-    document.getElementById('app').classList.add('visible');
-
-    if (images.background) {
-        document.getElementById('bg').style.backgroundImage = `url(${images.background})`;
-    }
-
-    if (images.mcqueen) createCar('mcqueen', images.mcqueen);
-    if (images.mack) createCar('mack', images.mack);
-    if (images.mater) createCar('mater', images.mater);
-
-    if (images.mason) createFamily('Mason', images.mason);
-    if (images.lola) createFamily('Lola', images.lola);
-    if (images.mam) createFamily('Mam', images.mam);
-    if (images.dad) createFamily('Dad', images.dad);
-
-    animating = true;
-    animate();
-}
-
-// Init
-setupSlots();
-
-document.getElementById('startBtn').onclick = startApp;
-
-document.getElementById('backBtn').onclick = () => location.reload();
-
-document.getElementById('soundBtn').onclick = function() {
+function toggleSound() {
     initAudio();
     soundOn = !soundOn;
-    this.textContent = soundOn ? '🔊' : '🔇';
-};
-
-// Init audio on any touch
-document.addEventListener('touchstart', initAudio, {once: true});
+    document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+}
 </script>
+
 </body>
 </html>
