@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Mason's Cars World</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+        }
+
+        /* ========== SETUP MODE ========== */
+        .setup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .setup-overlay.hidden {
+            display: none;
+        }
+
+        .setup-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .setup-title {
+            color: #ff6b6b;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .setup-subtitle {
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .drop-slot {
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drop-slot:hover, .drop-slot.dragover {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.1);
+        }
+
+        .drop-slot.has-image {
+            border-style: solid;
+            border-color: #4ecdc4;
+        }
+
+        .drop-slot input {
+            display: none;
+        }
+
+        .drop-slot .label {
+            color: #ffd93d;
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .drop-slot .hint {
+            color: #888;
+            font-size: 11px;
+        }
+
+        .drop-slot img {
+            max-width: 100%;
+            max-height: 80px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .start-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            padding: 18px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
+        }
+
+        .start-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .reset-btn {
+            display: block;
+            margin: 15px auto;
+            padding: 10px 25px;
+            font-size: 14px;
+            color: #aaa;
+            background: transparent;
+            border: 1px solid #555;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .reset-btn:hover {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 400px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin: 20px auto;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecdc4, #44a08d);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #4ecdc4;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        /* ========== MAIN APP ========== */
+        .app-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-container.hidden {
+            display: none;
+        }
+
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .road-area {
+            position: absolute;
+            bottom: 15%;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            pointer-events: none;
+        }
+
+        .car {
+            position: absolute;
+            height: auto;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: transform 0.2s ease-out;
+            will-change: transform, left;
+        }
+
+        .car img {
+            height: 100%;
+            width: auto;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+        }
+
+        .car.tapped {
+            transform: scale(1.15) !important;
+        }
+
+        .car.bobbing {
+            animation: bob 3s ease-in-out infinite;
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .car.tapped.bobbing {
+            animation: bob-tapped 3s ease-in-out infinite;
+        }
+
+        @keyframes bob-tapped {
+            0%, 100% { transform: scale(1.15) translateY(0); }
+            50% { transform: scale(1.15) translateY(-8px); }
+        }
+
+        .family-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 14%;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5vw;
+            padding: 0 5vw;
+        }
+
+        .family-photo {
+            width: 12vmin;
+            height: 12vmin;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .family-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .family-photo:active,
+        .family-photo.glowing {
+            border-color: #ffd700;
+            box-shadow: 0 0 25px 8px rgba(255,215,0,0.6), 0 0 50px 15px rgba(255,215,0,0.3);
+            transform: scale(1.1);
+        }
+
+        .photo-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .photo-name {
+            color: white;
+            font-size: 2.2vmin;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .sound-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .sound-toggle:active {
+            transform: scale(0.95);
+            background: rgba(255,255,255,0.3);
+        }
+
+        .sound-toggle.muted {
+            background: rgba(255,0,0,0.2);
+            border-color: rgba(255,100,100,0.5);
+        }
+
+        .settings-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 4vmin;
+            font-weight: 700;
+            text-shadow: 0 3px 10px rgba(0,0,0,0.5);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- SETUP OVERLAY -->
+    <div class="setup-overlay" id="setupOverlay">
+        <div class="setup-container">
+            <h1 class="setup-title">Mason's Cars World</h1>
+            <p class="setup-subtitle">Drop or tap to add your images</p>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <p class="progress-text" id="progressText">0 of 8 images added</p>
+
+            <div class="image-grid" id="imageGrid"></div>
+
+            <button class="start-btn" id="startBtn" disabled>Start App</button>
+            <button class="reset-btn" id="resetBtn">Reset All Images</button>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app-container hidden" id="appContainer">
+        <div class="background" id="background"></div>
+        <div class="title">Mason's Cars World</div>
+        <div class="road-area" id="roadArea"></div>
+        <div class="family-bar" id="familyBar"></div>
+        <button class="settings-btn" id="settingsBtn">⚙️</button>
+        <button class="sound-toggle" id="soundToggle">🔊</button>
+    </div>
+
+    <script>
+        // ============================================
+        // IMAGE STORAGE (localStorage)
+        // ============================================
+        const STORAGE_KEY = 'masons-cars-world-images';
+
+        const imageSlots = [
+            { id: 'background', name: 'Background', hint: 'Radiator Springs scene' },
+            { id: 'mcqueen', name: 'McQueen', hint: 'Lightning McQueen' },
+            { id: 'mack', name: 'Mack', hint: 'Big red truck' },
+            { id: 'mater', name: 'Mater', hint: 'Rusty tow truck' },
+            { id: 'mason', name: 'Mason', hint: 'Family photo' },
+            { id: 'lola', name: 'Lola', hint: 'Family photo' },
+            { id: 'mam', name: 'Mam', hint: 'Family photo' },
+            { id: 'dad', name: 'Dad', hint: 'Family photo' }
+        ];
+
+        let storedImages = {};
+
+        function loadStoredImages() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    storedImages = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.log('Could not load stored images');
+            }
+        }
+
+        function saveImages() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(storedImages));
+            } catch (e) {
+                console.log('Could not save images - storage may be full');
+            }
+        }
+
+        function updateProgress() {
+            const count = Object.keys(storedImages).length;
+            const pct = (count / 8) * 100;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressText').textContent = `${count} of 8 images added`;
+            document.getElementById('startBtn').disabled = count < 4; // Minimum: background + 3 cars
+        }
+
+        // ============================================
+        // SETUP UI
+        // ============================================
+        function createSetupUI() {
+            const grid = document.getElementById('imageGrid');
+
+            imageSlots.forEach(slot => {
+                const div = document.createElement('div');
+                div.className = 'drop-slot' + (storedImages[slot.id] ? ' has-image' : '');
+                div.id = `slot-${slot.id}`;
+                div.innerHTML = `
+                    <div class="label">${slot.name}</div>
+                    <div class="hint">${slot.hint}</div>
+                    <input type="file" accept="image/*" id="input-${slot.id}">
+                    ${storedImages[slot.id] ? `<img src="${storedImages[slot.id]}" alt="${slot.name}">` : ''}
+                `;
+                grid.appendChild(div);
+
+                const input = div.querySelector('input');
+
+                div.addEventListener('click', () => input.click());
+
+                div.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    div.classList.add('dragover');
+                });
+
+                div.addEventListener('dragleave', () => {
+                    div.classList.remove('dragover');
+                });
+
+                div.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    div.classList.remove('dragover');
+                    if (e.dataTransfer.files[0]) {
+                        handleFile(e.dataTransfer.files[0], slot.id, div);
+                    }
+                });
+
+                input.addEventListener('change', (e) => {
+                    if (e.target.files[0]) {
+                        handleFile(e.target.files[0], slot.id, div);
+                    }
+                });
+            });
+        }
+
+        function handleFile(file, slotId, slotElement) {
+            if (!file.type.startsWith('image/')) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64 = e.target.result;
+                storedImages[slotId] = base64;
+                saveImages();
+
+                // Update slot UI
+                slotElement.classList.add('has-image');
+                let img = slotElement.querySelector('img');
+                if (!img) {
+                    img = document.createElement('img');
+                    slotElement.appendChild(img);
+                }
+                img.src = base64;
+
+                updateProgress();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ============================================
+        // AUDIO ENGINE
+        // ============================================
+        class AudioEngine {
+            constructor() {
+                this.context = null;
+                this.enabled = true;
+                this.initialized = false;
+            }
+
+            init() {
+                if (this.initialized) return;
+                try {
+                    this.context = new (window.AudioContext || window.webkitAudioContext)();
+                    this.initialized = true;
+                } catch (e) {}
+            }
+
+            playEngineSound(carType) {
+                if (!this.enabled || !this.context) return;
+                if (this.context.state === 'suspended') this.context.resume();
+
+                const now = this.context.currentTime;
+                const osc1 = this.context.createOscillator();
+                const osc2 = this.context.createOscillator();
+                const gainNode = this.context.createGain();
+                const filter = this.context.createBiquadFilter();
+
+                const frequencies = {
+                    mcqueen: { base: 85, mod: 42 },
+                    mack: { base: 55, mod: 27 },
+                    mater: { base: 70, mod: 35 }
+                };
+                const freq = frequencies[carType] || frequencies.mcqueen;
+
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(freq.base, now);
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(freq.mod, now);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(200, now);
+
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.15, now + 0.1);
+                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.3);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.8);
+
+                osc1.connect(filter);
+                osc2.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(this.context.destination);
+
+                osc1.start(now);
+                osc2.start(now);
+                osc1.stop(now + 0.9);
+                osc2.stop(now + 0.9);
+            }
+
+            playFamilyChime() {
+                if (!this.enabled || !this.context) return;
+                if (this.context.state === 'suspended') this.context.resume();
+
+                const now = this.context.currentTime;
+                const osc = this.context.createOscillator();
+                const gainNode = this.context.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523, now);
+                osc.frequency.setValueAtTime(659, now + 0.1);
+                osc.frequency.setValueAtTime(784, now + 0.2);
+
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.6);
+
+                osc.connect(gainNode);
+                gainNode.connect(this.context.destination);
+                osc.start(now);
+                osc.stop(now + 0.7);
+            }
+
+            toggle() {
+                this.enabled = !this.enabled;
+                return this.enabled;
+            }
+        }
+
+        // ============================================
+        // CAR CLASS
+        // ============================================
+        class Car {
+            constructor(type, imageSrc, roadArea, audio) {
+                this.type = type;
+                this.roadArea = roadArea;
+                this.audio = audio;
+                this.element = document.createElement('div');
+                this.element.className = 'car bobbing';
+                this.element.innerHTML = `<img src="${imageSrc}" alt="${type}">`;
+
+                const sizes = { mcqueen: '18vmin', mack: '30vmin', mater: '16vmin' };
+                this.element.style.height = sizes[type] || '15vmin';
+
+                const verticalPositions = { mcqueen: '20%', mack: '5%', mater: '35%' };
+                this.element.style.top = verticalPositions[type] || '25%';
+
+                this.duration = 15000 + Math.random() * 10000;
+                const startOffsets = { mcqueen: 0, mack: 0.3, mater: 0.6 };
+                this.startOffset = startOffsets[type] || 0;
+
+                this.roadArea.appendChild(this.element);
+                this.setupInteraction();
+                this.startAnimation();
+            }
+
+            setupInteraction() {
+                const handleTap = (e) => {
+                    e.preventDefault();
+                    this.element.classList.add('tapped');
+                    this.audio.playEngineSound(this.type);
+                    setTimeout(() => this.element.classList.remove('tapped'), 300);
+                };
+                this.element.addEventListener('touchstart', handleTap, { passive: false });
+                this.element.addEventListener('click', handleTap);
+            }
+
+            startAnimation() {
+                const animate = () => {
+                    const screenWidth = window.innerWidth;
+                    const carWidth = this.element.offsetWidth || 200;
+                    const startX = screenWidth + carWidth;
+                    const endX = -carWidth - 50;
+                    const totalDistance = startX - endX;
+                    let startTime = null;
+                    let initialOffset = totalDistance * this.startOffset;
+
+                    const step = (timestamp) => {
+                        if (!startTime) startTime = timestamp;
+                        const elapsed = timestamp - startTime;
+                        const progress = (elapsed / this.duration) + (initialOffset / totalDistance);
+                        const adjustedProgress = progress % 1;
+                        const currentX = startX - (adjustedProgress * totalDistance);
+                        this.element.style.left = `${currentX}px`;
+                        if (progress >= 1) initialOffset = 0;
+                        requestAnimationFrame(step);
+                    };
+                    requestAnimationFrame(step);
+                };
+                animate();
+            }
+        }
+
+        // ============================================
+        // FAMILY PHOTO CLASS
+        // ============================================
+        class FamilyPhoto {
+            constructor(name, imageSrc, container, audio) {
+                this.audio = audio;
+                const wrapper = document.createElement('div');
+                wrapper.className = 'photo-wrapper';
+
+                this.element = document.createElement('div');
+                this.element.className = 'family-photo';
+                this.element.innerHTML = `<img src="${imageSrc}" alt="${name}">`;
+
+                const nameLabel = document.createElement('div');
+                nameLabel.className = 'photo-name';
+                nameLabel.textContent = name;
+
+                wrapper.appendChild(this.element);
+                wrapper.appendChild(nameLabel);
+                container.appendChild(wrapper);
+
+                this.setupInteraction();
+            }
+
+            setupInteraction() {
+                const handleTap = (e) => {
+                    e.preventDefault();
+                    this.element.classList.add('glowing');
+                    this.audio.playFamilyChime();
+                    setTimeout(() => this.element.classList.remove('glowing'), 600);
+                };
+                this.element.addEventListener('touchstart', handleTap, { passive: false });
+                this.element.addEventListener('click', handleTap);
+            }
+        }
+
+        // ============================================
+        // MAIN APP
+        // ============================================
+        let audio = new AudioEngine();
+
+        function startApp() {
+            document.getElementById('setupOverlay').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+
+            // Set background
+            if (storedImages.background) {
+                document.getElementById('background').style.backgroundImage = `url("${storedImages.background}")`;
+            }
+
+            const roadArea = document.getElementById('roadArea');
+            const familyBar = document.getElementById('familyBar');
+
+            // Initialize audio on interaction
+            document.addEventListener('touchstart', () => audio.init(), { once: true });
+            document.addEventListener('click', () => audio.init(), { once: true });
+
+            // Create cars
+            if (storedImages.mcqueen) new Car('mcqueen', storedImages.mcqueen, roadArea, audio);
+            if (storedImages.mack) new Car('mack', storedImages.mack, roadArea, audio);
+            if (storedImages.mater) new Car('mater', storedImages.mater, roadArea, audio);
+
+            // Create family photos
+            if (storedImages.mason) new FamilyPhoto('Mason', storedImages.mason, familyBar, audio);
+            if (storedImages.lola) new FamilyPhoto('Lola', storedImages.lola, familyBar, audio);
+            if (storedImages.mam) new FamilyPhoto('Mam', storedImages.mam, familyBar, audio);
+            if (storedImages.dad) new FamilyPhoto('Dad', storedImages.dad, familyBar, audio);
+
+            // Sound toggle
+            const soundToggle = document.getElementById('soundToggle');
+            const handleSoundToggle = (e) => {
+                e.preventDefault();
+                audio.init();
+                const enabled = audio.toggle();
+                soundToggle.textContent = enabled ? '🔊' : '🔇';
+                soundToggle.classList.toggle('muted', !enabled);
+            };
+            soundToggle.addEventListener('touchstart', handleSoundToggle, { passive: false });
+            soundToggle.addEventListener('click', handleSoundToggle);
+
+            // Settings button (return to setup)
+            const settingsBtn = document.getElementById('settingsBtn');
+            settingsBtn.addEventListener('click', () => {
+                location.reload();
+            });
+
+            // Prevent scroll
+            document.addEventListener('touchmove', (e) => {
+                if (e.target.closest('.car') || e.target.closest('.family-photo')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        loadStoredImages();
+        createSetupUI();
+        updateProgress();
+
+        document.getElementById('startBtn').addEventListener('click', startApp);
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (confirm('Remove all images and start over?')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        });
+
+        // Auto-start if all images are loaded
+        if (Object.keys(storedImages).length === 8) {
+            startApp();
+        }
+    </script>
+</body>
+</html>
