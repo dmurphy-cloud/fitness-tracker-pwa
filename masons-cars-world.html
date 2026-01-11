@@ -318,6 +318,30 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
+        /* Hearts and Stars particles */
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            animation: float-up 1.5s ease-out forwards;
+            z-index: 200;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(0.5) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-40px) scale(1.2) rotate(180deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(0.8) rotate(360deg);
+            }
+        }
+
         /* Controls */
         .control-btn {
             position: absolute;
@@ -513,7 +537,7 @@
                 } catch (e) {}
             }
 
-            // Authentic car engine sounds - gentle and calming
+            // Distinctive car sounds for each character
             playEngineSound(carType) {
                 if (!this.enabled || !this.context) return;
                 if (this.context.state === 'suspended') this.context.resume();
@@ -521,148 +545,168 @@
                 const now = this.context.currentTime;
 
                 if (carType === 'mcqueen') {
-                    // McQueen: Smooth, zippy race car purr - higher pitch
+                    // McQueen: High-performance race car - VROOM!
                     this.playRaceCarSound(now);
                 } else if (carType === 'mater') {
-                    // Mater: Friendly clunky old truck rumble
-                    this.playOldTruckSound(now);
+                    // Mater: Old tow truck with horn - friendly beep beep
+                    this.playTowTruckSound(now);
                 } else if (carType === 'mack') {
-                    // Mack: Deep, warm diesel truck sound
-                    this.playBigTruckSound(now);
+                    // Mack: Big truck air horn - deep honk
+                    this.playBigTruckHorn(now);
                 }
             }
 
             playRaceCarSound(now) {
-                // Lightning McQueen - smooth race car engine rev
+                // Lightning McQueen - HIGH PERFORMANCE race car revving up!
                 const osc1 = this.context.createOscillator();
                 const osc2 = this.context.createOscillator();
                 const osc3 = this.context.createOscillator();
+                const osc4 = this.context.createOscillator();
                 const gainNode = this.context.createGain();
                 const filter = this.context.createBiquadFilter();
 
-                // Race car engine - starts low, revs up smoothly
+                // High revving engine - starts and climbs fast
                 osc1.type = 'sawtooth';
-                osc1.frequency.setValueAtTime(80, now);
-                osc1.frequency.exponentialRampToValueAtTime(200, now + 0.3);
-                osc1.frequency.exponentialRampToValueAtTime(120, now + 0.8);
+                osc1.frequency.setValueAtTime(120, now);
+                osc1.frequency.exponentialRampToValueAtTime(400, now + 0.25);
+                osc1.frequency.exponentialRampToValueAtTime(500, now + 0.5);
+                osc1.frequency.exponentialRampToValueAtTime(300, now + 0.9);
 
-                osc2.type = 'triangle';
-                osc2.frequency.setValueAtTime(160, now);
-                osc2.frequency.exponentialRampToValueAtTime(400, now + 0.3);
-                osc2.frequency.exponentialRampToValueAtTime(240, now + 0.8);
+                osc2.type = 'square';
+                osc2.frequency.setValueAtTime(240, now);
+                osc2.frequency.exponentialRampToValueAtTime(800, now + 0.25);
+                osc2.frequency.exponentialRampToValueAtTime(1000, now + 0.5);
+                osc2.frequency.exponentialRampToValueAtTime(600, now + 0.9);
 
-                osc3.type = 'sine';
-                osc3.frequency.setValueAtTime(40, now);
+                osc3.type = 'triangle';
+                osc3.frequency.setValueAtTime(60, now);
+                osc3.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+
+                osc4.type = 'sine';
+                osc4.frequency.setValueAtTime(80, now);
+                osc4.frequency.exponentialRampToValueAtTime(250, now + 0.4);
 
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(400, now);
-                filter.frequency.linearRampToValueAtTime(800, now + 0.3);
-                filter.frequency.linearRampToValueAtTime(300, now + 0.8);
-                filter.Q.value = 2;
+                filter.frequency.setValueAtTime(600, now);
+                filter.frequency.linearRampToValueAtTime(2000, now + 0.3);
+                filter.frequency.linearRampToValueAtTime(1000, now + 0.7);
+                filter.Q.value = 3;
 
-                // Gentle volume envelope
                 gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.08, now + 0.1);
-                gainNode.gain.linearRampToValueAtTime(0.12, now + 0.3);
-                gainNode.gain.linearRampToValueAtTime(0.06, now + 0.6);
+                gainNode.gain.linearRampToValueAtTime(0.06, now + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.3);
+                gainNode.gain.linearRampToValueAtTime(0.08, now + 0.6);
                 gainNode.gain.linearRampToValueAtTime(0, now + 1.0);
 
                 osc1.connect(filter);
                 osc2.connect(filter);
                 osc3.connect(filter);
+                osc4.connect(filter);
                 filter.connect(gainNode);
                 gainNode.connect(this.context.destination);
 
-                osc1.start(now);
-                osc2.start(now);
-                osc3.start(now);
-                osc1.stop(now + 1.1);
-                osc2.stop(now + 1.1);
-                osc3.stop(now + 1.1);
+                osc1.start(now); osc2.start(now); osc3.start(now); osc4.start(now);
+                osc1.stop(now + 1.1); osc2.stop(now + 1.1); osc3.stop(now + 1.1); osc4.stop(now + 1.1);
             }
 
-            playOldTruckSound(now) {
-                // Mater - friendly, clunky old tow truck
-                const osc1 = this.context.createOscillator();
-                const osc2 = this.context.createOscillator();
+            playTowTruckSound(now) {
+                // Mater - friendly old tow truck: clunky engine + cute horn beep
                 const gainNode = this.context.createGain();
                 const filter = this.context.createBiquadFilter();
 
-                // Lower, chunkier sound with slight wobble
-                osc1.type = 'sawtooth';
-                osc1.frequency.setValueAtTime(55, now);
-                osc1.frequency.setValueAtTime(60, now + 0.15);
-                osc1.frequency.setValueAtTime(52, now + 0.3);
-                osc1.frequency.setValueAtTime(58, now + 0.45);
-                osc1.frequency.setValueAtTime(50, now + 0.7);
+                // Clunky engine first
+                const eng1 = this.context.createOscillator();
+                const eng2 = this.context.createOscillator();
+                eng1.type = 'sawtooth';
+                eng1.frequency.setValueAtTime(45, now);
+                eng1.frequency.setValueAtTime(55, now + 0.1);
+                eng1.frequency.setValueAtTime(42, now + 0.2);
+                eng1.frequency.setValueAtTime(50, now + 0.3);
 
-                osc2.type = 'square';
-                osc2.frequency.setValueAtTime(27, now);
+                eng2.type = 'square';
+                eng2.frequency.setValueAtTime(22, now);
 
                 filter.type = 'lowpass';
-                filter.frequency.value = 250;
-                filter.Q.value = 1;
+                filter.frequency.value = 200;
 
                 gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.1);
-                gainNode.gain.setValueAtTime(0.08, now + 0.3);
-                gainNode.gain.setValueAtTime(0.1, now + 0.5);
+                gainNode.gain.linearRampToValueAtTime(0.08, now + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0.06, now + 0.3);
+                gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
+
+                eng1.connect(filter);
+                eng2.connect(filter);
+                filter.connect(gainNode);
+                gainNode.connect(this.context.destination);
+
+                eng1.start(now); eng2.start(now);
+                eng1.stop(now + 0.5); eng2.stop(now + 0.5);
+
+                // Cute horn beep beep!
+                const horn1 = this.context.createOscillator();
+                const horn2 = this.context.createOscillator();
+                const hornGain = this.context.createGain();
+
+                horn1.type = 'sine';
+                horn1.frequency.value = 350;
+                horn2.type = 'sine';
+                horn2.frequency.value = 440;
+
+                hornGain.gain.setValueAtTime(0, now + 0.4);
+                hornGain.gain.linearRampToValueAtTime(0.12, now + 0.42);
+                hornGain.gain.linearRampToValueAtTime(0, now + 0.55);
+                hornGain.gain.linearRampToValueAtTime(0.12, now + 0.6);
+                hornGain.gain.linearRampToValueAtTime(0, now + 0.73);
+
+                horn1.connect(hornGain);
+                horn2.connect(hornGain);
+                hornGain.connect(this.context.destination);
+
+                horn1.start(now + 0.4); horn2.start(now + 0.4);
+                horn1.stop(now + 0.8); horn2.stop(now + 0.8);
+            }
+
+            playBigTruckHorn(now) {
+                // Mack - BIG TRUCK air horn! Deep and powerful
+                const osc1 = this.context.createOscillator();
+                const osc2 = this.context.createOscillator();
+                const osc3 = this.context.createOscillator();
+                const osc4 = this.context.createOscillator();
+                const gainNode = this.context.createGain();
+                const filter = this.context.createBiquadFilter();
+
+                // Deep air horn - multiple harmonics
+                osc1.type = 'sine';
+                osc1.frequency.value = 130; // Base note
+
+                osc2.type = 'sine';
+                osc2.frequency.value = 165; // Third
+
+                osc3.type = 'sine';
+                osc3.frequency.value = 195; // Fifth
+
+                osc4.type = 'triangle';
+                osc4.frequency.value = 65; // Sub bass
+
+                filter.type = 'lowpass';
+                filter.frequency.value = 400;
+                filter.Q.value = 1;
+
+                // Big truck horn envelope
+                gainNode.gain.setValueAtTime(0, now);
+                gainNode.gain.linearRampToValueAtTime(0.15, now + 0.08);
+                gainNode.gain.setValueAtTime(0.15, now + 0.6);
                 gainNode.gain.linearRampToValueAtTime(0, now + 0.9);
 
                 osc1.connect(filter);
                 osc2.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(this.context.destination);
-
-                osc1.start(now);
-                osc2.start(now);
-                osc1.stop(now + 1.0);
-                osc2.stop(now + 1.0);
-            }
-
-            playBigTruckSound(now) {
-                // Mack - deep, powerful but gentle diesel truck
-                const osc1 = this.context.createOscillator();
-                const osc2 = this.context.createOscillator();
-                const osc3 = this.context.createOscillator();
-                const gainNode = this.context.createGain();
-                const filter = this.context.createBiquadFilter();
-
-                // Deep diesel rumble
-                osc1.type = 'sawtooth';
-                osc1.frequency.setValueAtTime(35, now);
-                osc1.frequency.linearRampToValueAtTime(45, now + 0.4);
-                osc1.frequency.linearRampToValueAtTime(38, now + 1.0);
-
-                osc2.type = 'triangle';
-                osc2.frequency.setValueAtTime(70, now);
-                osc2.frequency.linearRampToValueAtTime(90, now + 0.4);
-
-                osc3.type = 'sine';
-                osc3.frequency.setValueAtTime(18, now); // Sub bass
-
-                filter.type = 'lowpass';
-                filter.frequency.value = 180;
-                filter.Q.value = 0.7;
-
-                gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.15);
-                gainNode.gain.linearRampToValueAtTime(0.12, now + 0.4);
-                gainNode.gain.linearRampToValueAtTime(0.08, now + 0.8);
-                gainNode.gain.linearRampToValueAtTime(0, now + 1.2);
-
-                osc1.connect(filter);
-                osc2.connect(filter);
                 osc3.connect(filter);
+                osc4.connect(filter);
                 filter.connect(gainNode);
                 gainNode.connect(this.context.destination);
 
-                osc1.start(now);
-                osc2.start(now);
-                osc3.start(now);
-                osc1.stop(now + 1.3);
-                osc2.stop(now + 1.3);
-                osc3.stop(now + 1.3);
+                osc1.start(now); osc2.start(now); osc3.start(now); osc4.start(now);
+                osc1.stop(now + 1.0); osc2.stop(now + 1.0); osc3.stop(now + 1.0); osc4.stop(now + 1.0);
             }
 
             playBoostSound() {
@@ -706,33 +750,33 @@
                 osc2.stop(now + 0.7);
             }
 
-            // Soft, gentle chime for family photos - calming for children
-            playFamilyChime() {
+            // Light, magical sparkle sound for family photos
+            playFamilySparkle() {
                 if (!this.enabled || !this.context) return;
                 if (this.context.state === 'suspended') this.context.resume();
 
                 const now = this.context.currentTime;
 
-                // Soft, warm bell-like tones
-                const frequencies = [392, 523, 659]; // G4, C5, E5 - gentle major chord
+                // Light, twinkling sparkle sounds - like fairy dust
+                const notes = [784, 988, 1175, 1319, 1568]; // High, magical notes
 
-                frequencies.forEach((freq, i) => {
+                notes.forEach((freq, i) => {
                     const osc = this.context.createOscillator();
                     const gain = this.context.createGain();
 
                     osc.type = 'sine';
                     osc.frequency.value = freq;
 
-                    const startTime = now + (i * 0.08);
+                    const startTime = now + (i * 0.06);
                     gain.gain.setValueAtTime(0, startTime);
-                    gain.gain.linearRampToValueAtTime(0.08, startTime + 0.05);
-                    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.8);
+                    gain.gain.linearRampToValueAtTime(0.05, startTime + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
 
                     osc.connect(gain);
                     gain.connect(this.context.destination);
 
                     osc.start(startTime);
-                    osc.stop(startTime + 0.9);
+                    osc.stop(startTime + 0.5);
                 });
             }
 
@@ -922,8 +966,8 @@
                 this.name = name;
                 this.audio = audio;
 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'photo-wrapper';
+                this.wrapper = document.createElement('div');
+                this.wrapper.className = 'photo-wrapper';
 
                 this.element = document.createElement('div');
                 this.element.className = 'family-photo';
@@ -933,20 +977,51 @@
                 label.className = 'photo-name';
                 label.textContent = name;
 
-                wrapper.appendChild(this.element);
-                wrapper.appendChild(label);
-                container.appendChild(wrapper);
+                this.wrapper.appendChild(this.element);
+                this.wrapper.appendChild(label);
+                container.appendChild(this.wrapper);
 
                 const handleTap = (e) => {
                     e.preventDefault();
                     this.element.classList.add('glowing');
-                    // Soft, gentle chime - no speaking
-                    this.audio.playFamilyChime();
+
+                    // Light sparkle sound
+                    this.audio.playFamilySparkle();
+
+                    // Create hearts and stars!
+                    this.createParticles();
+
                     setTimeout(() => this.element.classList.remove('glowing'), 800);
                 };
 
                 this.element.addEventListener('touchstart', handleTap, { passive: false });
                 this.element.addEventListener('click', handleTap);
+            }
+
+            createParticles() {
+                const particles = ['❤️', '⭐', '💖', '✨', '💕', '🌟', '💗', '⭐'];
+                const count = 8;
+
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.textContent = particles[i % particles.length];
+
+                    // Random position around the photo
+                    const angle = (i / count) * Math.PI * 2;
+                    const distance = 20 + Math.random() * 30;
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+
+                    particle.style.left = `calc(50% + ${x}px)`;
+                    particle.style.top = `calc(30% + ${y}px)`;
+                    particle.style.animationDelay = `${i * 0.08}s`;
+
+                    this.wrapper.appendChild(particle);
+
+                    // Remove particle after animation
+                    setTimeout(() => particle.remove(), 1600);
+                }
             }
         }
 
