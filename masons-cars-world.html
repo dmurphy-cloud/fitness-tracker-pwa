@@ -246,23 +246,28 @@ function checkReady() {
 }
 
 function startApp() {
-    document.getElementById('setup').style.display = 'none';
-    document.getElementById('app').classList.add('show');
+    alert('Starting!');
+    try {
+        document.getElementById('setup').style.display = 'none';
+        document.getElementById('app').classList.add('show');
 
-    if (imgs.background) {
-        document.getElementById('bg').style.backgroundImage = 'url(' + imgs.background + ')';
+        if (imgs.background) {
+            document.getElementById('bg').style.backgroundImage = 'url(' + imgs.background + ')';
+        }
+
+        if (imgs.mcqueen) makeCar('mcqueen', imgs.mcqueen);
+        if (imgs.mack) makeCar('mack', imgs.mack);
+        if (imgs.mater) makeCar('mater', imgs.mater);
+
+        if (imgs.mason) makeFam('Mason', imgs.mason);
+        if (imgs.lola) makeFam('Lola', imgs.lola);
+        if (imgs.mam) makeFam('Mam', imgs.mam);
+        if (imgs.dad) makeFam('Dad', imgs.dad);
+
+        runAnimation();
+    } catch(e) {
+        alert('Error: ' + e.message);
     }
-
-    if (imgs.mcqueen) makeCar('mcqueen', imgs.mcqueen);
-    if (imgs.mack) makeCar('mack', imgs.mack);
-    if (imgs.mater) makeCar('mater', imgs.mater);
-
-    if (imgs.mason) makeFam('Mason', imgs.mason);
-    if (imgs.lola) makeFam('Lola', imgs.lola);
-    if (imgs.mam) makeFam('Mam', imgs.mam);
-    if (imgs.dad) makeFam('Dad', imgs.dad);
-
-    runAnimation();
 }
 
 var cars = [];
