@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Mason's Cars World</title>
     <style>
         * {
@@ -12,1161 +11,415 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
         }
-
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            touch-action: manipulation;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, sans-serif;
             background: #1a1a2e;
         }
 
-        /* ========== SETUP MODE ========== */
-        .setup-overlay {
+        /* SETUP SCREEN */
+        #setup {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            z-index: 1000;
-            overflow-y: auto;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
             padding: 20px;
+            overflow-y: auto;
+            z-index: 1000;
         }
-
-        .setup-overlay.hidden {
-            display: none;
-        }
-
-        .setup-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .setup-title {
-            color: #ff6b6b;
-            font-size: 28px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .setup-subtitle {
-            color: #aaa;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .image-grid {
+        #setup.hidden { display: none; }
+        .title { color: #ff6b6b; font-size: 24px; text-align: center; margin-bottom: 20px; }
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            max-width: 700px;
+            margin: 0 auto 20px;
         }
-
-        .drop-slot {
-            background: rgba(255,255,255,0.05);
+        .slot {
+            background: rgba(255,255,255,0.1);
             border: 2px dashed rgba(255,255,255,0.3);
             border-radius: 12px;
-            padding: 15px;
+            padding: 12px;
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-height: 140px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            min-height: 120px;
         }
-
-        .drop-slot:hover, .drop-slot.dragover {
-            border-color: #4ecdc4;
-            background: rgba(78, 205, 196, 0.1);
-        }
-
-        .drop-slot.has-image {
-            border-style: solid;
-            border-color: #4ecdc4;
-        }
-
-        .drop-slot input { display: none; }
-
-        .drop-slot .label {
-            color: #ffd93d;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .drop-slot .hint {
-            color: #888;
-            font-size: 11px;
-        }
-
-        .drop-slot img {
-            max-width: 100%;
-            max-height: 80px;
-            border-radius: 8px;
-            margin-top: 8px;
-        }
-
-        .start-btn {
+        .slot.done { border: 2px solid #4ecdc4; }
+        .slot .name { color: #ffd93d; font-weight: bold; font-size: 14px; }
+        .slot .hint { color: #888; font-size: 11px; margin: 4px 0; }
+        .slot img { max-width: 100%; max-height: 60px; border-radius: 6px; margin-top: 6px; }
+        .slot input { display: none; }
+        .btn {
             display: block;
-            width: 100%;
-            max-width: 300px;
+            width: 200px;
             margin: 20px auto;
-            padding: 18px 40px;
-            font-size: 20px;
+            padding: 16px;
+            font-size: 18px;
             font-weight: bold;
             color: white;
-            background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+            background: #ff6b6b;
             border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s;
+            border-radius: 25px;
         }
+        .btn:disabled { background: #555; }
 
-        .start-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(255,107,107,0.4);
-        }
-
-        .start-btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .reset-btn {
-            display: block;
-            margin: 15px auto;
-            padding: 10px 25px;
-            font-size: 14px;
-            color: #aaa;
-            background: transparent;
-            border: 1px solid #555;
-            border-radius: 20px;
-            cursor: pointer;
-        }
-
-        .progress-bar {
-            width: 100%;
-            max-width: 400px;
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            margin: 20px auto;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4ecdc4, #44a08d);
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            text-align: center;
-            color: #4ecdc4;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        /* ========== MAIN APP ========== */
-        .app-container {
+        /* MAIN APP */
+        #app {
             width: 100%;
             height: 100%;
             position: relative;
-            overflow: hidden;
+            display: none;
         }
-
-        .app-container.hidden { display: none; }
-
-        .background {
+        #app.visible { display: block; }
+        #bg {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background-size: cover;
             background-position: center;
         }
-
-        /* Race track overlay */
-        .race-track {
+        #track {
             position: absolute;
-            bottom: 12%;
+            bottom: 14%;
             left: 0;
             width: 100%;
-            height: 42%;
-            pointer-events: none;
+            height: 40%;
         }
-
-        .lane {
-            position: absolute;
-            left: 0;
-            width: 100%;
-            height: 33%;
-            pointer-events: none;
-        }
-
-        .lane-1 { top: 0; }
-        .lane-2 { top: 33%; }
-        .lane-3 { top: 66%; }
-
-        /* Cars */
         .car {
             position: absolute;
+            height: 15vmin;
             cursor: pointer;
-            pointer-events: auto;
-            transition: top 0.8s ease-in-out, transform 0.15s ease-out;
-            will-change: transform, left, top;
-            z-index: 10;
+            transition: transform 0.2s;
         }
+        .car img { height: 100%; width: auto; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4)); }
+        .car.tap { transform: scale(1.15); }
+        #mcqueen { height: 16vmin; }
+        #mack { height: 26vmin; }
+        #mater { height: 14vmin; }
 
-        .car img {
-            height: 100%;
-            width: auto;
-            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.5));
-        }
-
-        .car.tapped {
-            transform: scale(1.2) rotate(-3deg) !important;
-            z-index: 100;
-        }
-
-        .car.boosting img {
-            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.5))
-                   drop-shadow(0 0 20px rgba(255,200,0,0.6));
-        }
-
-        /* Position indicator */
-        .position-badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            color: #333;
-            font-size: 14px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            z-index: 50;
-        }
-
-        /* Family bar */
-        .family-bar {
+        #family {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 12%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            height: 13%;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 5vw;
-            padding: 0 5vw;
+            gap: 4vw;
         }
-
-        .family-photo {
+        .photo-wrap { text-align: center; position: relative; }
+        .photo {
             width: 11vmin;
             height: 11vmin;
             border-radius: 50%;
             overflow: hidden;
-            border: 3px solid rgba(255,255,255,0.6);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 3px solid rgba(255,255,255,0.5);
+            transition: all 0.3s;
         }
-
-        .family-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .photo img { width: 100%; height: 100%; object-fit: cover; }
+        .photo.glow {
+            border-color: gold;
+            box-shadow: 0 0 20px gold;
+            transform: scale(1.1);
         }
-
-        .family-photo.glowing {
-            border-color: #ffd700;
-            box-shadow: 0 0 25px 8px rgba(255,215,0,0.6);
-            transform: scale(1.15);
-        }
-
-        .photo-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .photo-name {
-            color: white;
-            font-size: 2vmin;
-            font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-
-        /* Hearts and Stars particles */
+        .photo-name { color: white; font-size: 2vmin; margin-top: 4px; }
         .particle {
             position: absolute;
+            font-size: 18px;
+            animation: floatUp 1.2s ease-out forwards;
             pointer-events: none;
-            font-size: 20px;
-            animation: float-up 1.5s ease-out forwards;
-            z-index: 200;
         }
-
-        @keyframes float-up {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(0.5) rotate(0deg);
-            }
-            50% {
-                opacity: 1;
-                transform: translateY(-40px) scale(1.2) rotate(180deg);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-80px) scale(0.8) rotate(360deg);
-            }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(0.5); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1); }
         }
-
-        /* Controls */
-        .control-btn {
+        .ctrl {
             position: absolute;
-            top: 20px;
-            width: 55px;
-            height: 55px;
+            top: 15px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.4);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            transition: all 0.3s ease;
+            border: none;
+            font-size: 22px;
             z-index: 100;
         }
-
-        .control-btn:active {
-            transform: scale(0.95);
-        }
-
-        .sound-toggle { right: 20px; }
-        .sound-toggle.muted {
-            background: rgba(255,0,0,0.2);
-            border-color: rgba(255,100,100,0.5);
-        }
-
-        .settings-btn { left: 20px; }
-
-        .title {
-            position: absolute;
-            top: 18px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: white;
-            font-size: 3.5vmin;
-            font-weight: 700;
-            text-shadow: 0 3px 10px rgba(0,0,0,0.6);
-            letter-spacing: 1px;
-        }
-
-        /* Race status */
-        .race-status {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.6);
-            padding: 8px 20px;
-            border-radius: 20px;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            backdrop-filter: blur(5px);
-        }
+        #soundBtn { right: 15px; }
+        #backBtn { left: 15px; }
     </style>
 </head>
 <body>
-    <!-- SETUP OVERLAY -->
-    <div class="setup-overlay" id="setupOverlay">
-        <div class="setup-container">
-            <h1 class="setup-title">Mason's Cars World</h1>
-            <p class="setup-subtitle">Drop or tap to add your images</p>
 
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-            </div>
-            <p class="progress-text" id="progressText">0 of 8 images added</p>
+<!-- SETUP -->
+<div id="setup">
+    <div class="title">Mason's Cars World</div>
+    <div class="grid" id="grid"></div>
+    <button class="btn" id="startBtn" disabled>Start Racing!</button>
+</div>
 
-            <div class="image-grid" id="imageGrid"></div>
+<!-- APP -->
+<div id="app">
+    <div id="bg"></div>
+    <div id="track"></div>
+    <div id="family"></div>
+    <button class="ctrl" id="backBtn">⚙️</button>
+    <button class="ctrl" id="soundBtn">🔊</button>
+</div>
 
-            <button class="start-btn" id="startBtn" disabled>Start Racing!</button>
-            <button class="reset-btn" id="resetBtn">Reset All Images</button>
-        </div>
-    </div>
+<script>
+// Simple image storage
+const images = {};
+const slots = [
+    {id:'background', name:'Background', hint:'Radiator Springs'},
+    {id:'mcqueen', name:'McQueen', hint:'Red race car'},
+    {id:'mack', name:'Mack', hint:'Big truck'},
+    {id:'mater', name:'Mater', hint:'Tow truck'},
+    {id:'mason', name:'Mason', hint:'Photo'},
+    {id:'lola', name:'Lola', hint:'Photo'},
+    {id:'mam', name:'Mam', hint:'Photo'},
+    {id:'dad', name:'Dad', hint:'Photo'}
+];
 
-    <!-- MAIN APP -->
-    <div class="app-container hidden" id="appContainer">
-        <div class="background" id="background"></div>
-        <div class="title">Mason's Cars World</div>
-        <div class="race-status" id="raceStatus">Race in progress!</div>
-        <div class="race-track" id="raceTrack">
-            <div class="lane lane-1"></div>
-            <div class="lane lane-2"></div>
-            <div class="lane lane-3"></div>
-        </div>
-        <div class="family-bar" id="familyBar"></div>
-        <button class="control-btn settings-btn" id="settingsBtn">⚙️</button>
-        <button class="control-btn sound-toggle" id="soundToggle">🔊</button>
-    </div>
+// Audio
+let audioCtx = null;
+let soundOn = true;
 
-    <script>
-        // ============================================
-        // STORAGE
-        // ============================================
-        const STORAGE_KEY = 'masons-cars-world-images';
-        const imageSlots = [
-            { id: 'background', name: 'Background', hint: 'Radiator Springs scene' },
-            { id: 'mcqueen', name: 'McQueen', hint: 'Lightning McQueen' },
-            { id: 'mack', name: 'Mack', hint: 'Big red truck' },
-            { id: 'mater', name: 'Mater', hint: 'Rusty tow truck' },
-            { id: 'mason', name: 'Mason', hint: 'Family photo' },
-            { id: 'lola', name: 'Lola', hint: 'Family photo' },
-            { id: 'mam', name: 'Mam', hint: 'Family photo' },
-            { id: 'dad', name: 'Dad', hint: 'Family photo' }
-        ];
+function initAudio() {
+    if (audioCtx) return;
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {}
+}
 
-        let storedImages = {};
-        let storageAvailable = true;
+function playSound(type) {
+    if (!soundOn || !audioCtx) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        // Check if localStorage works (fails in Safari private mode)
-        function checkStorage() {
-            try {
-                localStorage.setItem('test', 'test');
-                localStorage.removeItem('test');
-                return true;
-            } catch (e) {
-                return false;
-            }
-        }
+    const now = audioCtx.currentTime;
+    const gain = audioCtx.createGain();
+    gain.connect(audioCtx.destination);
 
-        function loadStoredImages() {
-            storageAvailable = checkStorage();
-            if (!storageAvailable) return;
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) storedImages = JSON.parse(stored);
-            } catch (e) {
-                console.log('Could not load images');
-            }
-        }
+    if (type === 'mcqueen') {
+        // Race car vroom
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.3);
+        osc.frequency.exponentialRampToValueAtTime(200, now + 0.7);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.8);
+        osc.connect(gain);
+        osc.start(now);
+        osc.stop(now + 0.9);
+    } else if (type === 'mater') {
+        // Tow truck beep beep
+        const osc = audioCtx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = 380;
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+        gain.gain.linearRampToValueAtTime(0, now + 0.15);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.25);
+        gain.gain.linearRampToValueAtTime(0, now + 0.35);
+        osc.connect(gain);
+        osc.start(now);
+        osc.stop(now + 0.4);
+    } else if (type === 'mack') {
+        // Big truck horn
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        osc1.type = 'sine';
+        osc1.frequency.value = 130;
+        osc2.type = 'sine';
+        osc2.frequency.value = 165;
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.7);
+        osc1.connect(gain);
+        osc2.connect(gain);
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.8);
+        osc2.stop(now + 0.8);
+    } else if (type === 'sparkle') {
+        // Family sparkle
+        [600, 800, 1000].forEach((f, i) => {
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = f;
+            g.gain.setValueAtTime(0.06, now + i*0.08);
+            g.gain.linearRampToValueAtTime(0, now + i*0.08 + 0.3);
+            osc.connect(g);
+            g.connect(audioCtx.destination);
+            osc.start(now + i*0.08);
+            osc.stop(now + i*0.08 + 0.35);
+        });
+    }
+}
 
-        function saveImages() {
-            if (!storageAvailable) return;
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(storedImages));
-            } catch (e) {
-                // Storage full or private mode - continue without saving
-                console.log('Could not save to storage');
-            }
-        }
+// Setup UI
+function buildSetup() {
+    const grid = document.getElementById('grid');
+    slots.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'slot';
+        div.id = 'slot-' + s.id;
+        div.innerHTML = `<div class="name">${s.name}</div><div class="hint">${s.hint}</div><input type="file" accept="image/*">`;
+        grid.appendChild(div);
 
-        function updateProgress() {
-            const count = Object.keys(storedImages).length;
-            const pct = (count / 8) * 100;
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            const startBtn = document.getElementById('startBtn');
+        const input = div.querySelector('input');
+        div.onclick = () => input.click();
 
-            if (progressFill) progressFill.style.width = pct + '%';
-            if (progressText) progressText.textContent = `${count} of 8 images added`;
-            if (startBtn) startBtn.disabled = count < 4;
-        }
-
-        // ============================================
-        // SETUP UI
-        // ============================================
-        function createSetupUI() {
-            const grid = document.getElementById('imageGrid');
-            imageSlots.forEach(slot => {
-                const div = document.createElement('div');
-                div.className = 'drop-slot' + (storedImages[slot.id] ? ' has-image' : '');
-                div.innerHTML = `
-                    <div class="label">${slot.name}</div>
-                    <div class="hint">${slot.hint}</div>
-                    <input type="file" accept="image/*" capture="environment">
-                    ${storedImages[slot.id] ? `<img src="${storedImages[slot.id]}">` : ''}
-                `;
-                grid.appendChild(div);
-
-                const input = div.querySelector('input');
-
-                // iPad/iOS fix: use touchend instead of click for better response
-                const triggerInput = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    input.click();
-                };
-
-                div.addEventListener('touchend', triggerInput, { passive: false });
-                div.addEventListener('click', triggerInput);
-
-                // Drag and drop (desktop)
-                div.addEventListener('dragover', e => { e.preventDefault(); div.classList.add('dragover'); });
-                div.addEventListener('dragleave', () => div.classList.remove('dragover'));
-                div.addEventListener('drop', e => {
-                    e.preventDefault();
-                    div.classList.remove('dragover');
-                    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0], slot.id, div);
-                });
-
-                input.addEventListener('change', e => {
-                    if (e.target.files[0]) handleFile(e.target.files[0], slot.id, div);
-                });
-            });
-        }
-
-        function handleFile(file, slotId, el) {
-            if (!file || !file.type.startsWith('image/')) return;
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = e => {
-                try {
-                    storedImages[slotId] = e.target.result;
-                    saveImages();
-                    el.classList.add('has-image');
-                    let img = el.querySelector('img');
-                    if (!img) {
-                        img = document.createElement('img');
-                        el.appendChild(img);
-                    }
-                    img.src = e.target.result;
-                    updateProgress();
-                } catch (err) {
-                    console.log('Error saving image:', err);
+            reader.onload = (ev) => {
+                images[s.id] = ev.target.result;
+                div.classList.add('done');
+                let img = div.querySelector('img');
+                if (!img) {
+                    img = document.createElement('img');
+                    div.appendChild(img);
                 }
+                img.src = ev.target.result;
+                checkReady();
             };
-            reader.onerror = () => console.log('Error reading file');
             reader.readAsDataURL(file);
+        };
+    });
+}
+
+function checkReady() {
+    const count = Object.keys(images).length;
+    document.getElementById('startBtn').disabled = count < 4;
+}
+
+// Cars animation
+let cars = [];
+let animating = false;
+
+function createCar(id, src) {
+    const el = document.createElement('div');
+    el.className = 'car';
+    el.id = id;
+    el.innerHTML = `<img src="${src}">`;
+    document.getElementById('track').appendChild(el);
+
+    const speed = {mcqueen: 1.2, mack: 0.7, mater: 0.95}[id] || 1;
+    const lane = {mcqueen: 35, mack: 10, mater: 60}[id] || 35;
+    const car = {
+        el: el,
+        id: id,
+        x: window.innerWidth + Math.random() * 200,
+        speed: speed,
+        lane: lane
+    };
+
+    el.style.top = lane + '%';
+    cars.push(car);
+
+    el.ontouchstart = el.onclick = (e) => {
+        e.preventDefault();
+        initAudio();
+        el.classList.add('tap');
+        playSound(id);
+        car.speed = speed * 2;
+        setTimeout(() => {
+            el.classList.remove('tap');
+            car.speed = speed;
+        }, 800);
+    };
+}
+
+function animate() {
+    if (!animating) return;
+
+    cars.forEach(car => {
+        car.x -= car.speed * 2;
+        if (car.x < -300) {
+            car.x = window.innerWidth + 100 + Math.random() * 200;
+        }
+        car.el.style.left = car.x + 'px';
+    });
+
+    requestAnimationFrame(animate);
+}
+
+// Family photos
+function createFamily(name, src) {
+    const wrap = document.createElement('div');
+    wrap.className = 'photo-wrap';
+    wrap.innerHTML = `<div class="photo"><img src="${src}"></div><div class="photo-name">${name}</div>`;
+    document.getElementById('family').appendChild(wrap);
+
+    const photo = wrap.querySelector('.photo');
+    photo.ontouchstart = photo.onclick = (e) => {
+        e.preventDefault();
+        initAudio();
+        photo.classList.add('glow');
+        playSound('sparkle');
+
+        // Hearts and stars
+        const emojis = ['❤️','⭐','💖','✨','💕','🌟'];
+        for (let i = 0; i < 6; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.textContent = emojis[i];
+            p.style.left = (20 + Math.random() * 60) + '%';
+            p.style.top = '20%';
+            p.style.animationDelay = (i * 0.1) + 's';
+            wrap.appendChild(p);
+            setTimeout(() => p.remove(), 1500);
         }
 
-        // ============================================
-        // AUDIO ENGINE - Calming sounds for children
-        // ============================================
-        class AudioEngine {
-            constructor() {
-                this.context = null;
-                this.enabled = true;
-                this.initialized = false;
-            }
-
-            init() {
-                if (this.initialized && this.context) return;
-                try {
-                    // iOS Safari requires webkit prefix
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    if (!AudioContext) return;
-
-                    this.context = new AudioContext();
-                    this.initialized = true;
-
-                    // iOS requires resume after user interaction
-                    if (this.context.state === 'suspended') {
-                        this.context.resume();
-                    }
-                } catch (e) {
-                    console.log('Audio not available');
-                }
-            }
-
-            // Ensure audio is ready (call before playing)
-            ensureReady() {
-                if (!this.context) this.init();
-                if (this.context && this.context.state === 'suspended') {
-                    this.context.resume();
-                }
-            }
-
-            // Distinctive car sounds for each character
-            playEngineSound(carType) {
-                if (!this.enabled) return;
-                this.ensureReady();
-                if (!this.context) return;
-
-                const now = this.context.currentTime;
-
-                if (carType === 'mcqueen') {
-                    // McQueen: High-performance race car - VROOM!
-                    this.playRaceCarSound(now);
-                } else if (carType === 'mater') {
-                    // Mater: Old tow truck with horn - friendly beep beep
-                    this.playTowTruckSound(now);
-                } else if (carType === 'mack') {
-                    // Mack: Big truck air horn - deep honk
-                    this.playBigTruckHorn(now);
-                }
-            }
-
-            playRaceCarSound(now) {
-                // Lightning McQueen - HIGH PERFORMANCE race car revving up!
-                const osc1 = this.context.createOscillator();
-                const osc2 = this.context.createOscillator();
-                const osc3 = this.context.createOscillator();
-                const osc4 = this.context.createOscillator();
-                const gainNode = this.context.createGain();
-                const filter = this.context.createBiquadFilter();
-
-                // High revving engine - starts and climbs fast
-                osc1.type = 'sawtooth';
-                osc1.frequency.setValueAtTime(120, now);
-                osc1.frequency.exponentialRampToValueAtTime(400, now + 0.25);
-                osc1.frequency.exponentialRampToValueAtTime(500, now + 0.5);
-                osc1.frequency.exponentialRampToValueAtTime(300, now + 0.9);
-
-                osc2.type = 'square';
-                osc2.frequency.setValueAtTime(240, now);
-                osc2.frequency.exponentialRampToValueAtTime(800, now + 0.25);
-                osc2.frequency.exponentialRampToValueAtTime(1000, now + 0.5);
-                osc2.frequency.exponentialRampToValueAtTime(600, now + 0.9);
-
-                osc3.type = 'triangle';
-                osc3.frequency.setValueAtTime(60, now);
-                osc3.frequency.exponentialRampToValueAtTime(200, now + 0.3);
-
-                osc4.type = 'sine';
-                osc4.frequency.setValueAtTime(80, now);
-                osc4.frequency.exponentialRampToValueAtTime(250, now + 0.4);
-
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(600, now);
-                filter.frequency.linearRampToValueAtTime(2000, now + 0.3);
-                filter.frequency.linearRampToValueAtTime(1000, now + 0.7);
-                filter.Q.value = 3;
-
-                gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.06, now + 0.05);
-                gainNode.gain.linearRampToValueAtTime(0.1, now + 0.3);
-                gainNode.gain.linearRampToValueAtTime(0.08, now + 0.6);
-                gainNode.gain.linearRampToValueAtTime(0, now + 1.0);
-
-                osc1.connect(filter);
-                osc2.connect(filter);
-                osc3.connect(filter);
-                osc4.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(this.context.destination);
-
-                osc1.start(now); osc2.start(now); osc3.start(now); osc4.start(now);
-                osc1.stop(now + 1.1); osc2.stop(now + 1.1); osc3.stop(now + 1.1); osc4.stop(now + 1.1);
-            }
-
-            playTowTruckSound(now) {
-                // Mater - friendly old tow truck: clunky engine + cute horn beep
-                const gainNode = this.context.createGain();
-                const filter = this.context.createBiquadFilter();
-
-                // Clunky engine first
-                const eng1 = this.context.createOscillator();
-                const eng2 = this.context.createOscillator();
-                eng1.type = 'sawtooth';
-                eng1.frequency.setValueAtTime(45, now);
-                eng1.frequency.setValueAtTime(55, now + 0.1);
-                eng1.frequency.setValueAtTime(42, now + 0.2);
-                eng1.frequency.setValueAtTime(50, now + 0.3);
-
-                eng2.type = 'square';
-                eng2.frequency.setValueAtTime(22, now);
-
-                filter.type = 'lowpass';
-                filter.frequency.value = 200;
-
-                gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.08, now + 0.05);
-                gainNode.gain.linearRampToValueAtTime(0.06, now + 0.3);
-                gainNode.gain.linearRampToValueAtTime(0, now + 0.5);
-
-                eng1.connect(filter);
-                eng2.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(this.context.destination);
-
-                eng1.start(now); eng2.start(now);
-                eng1.stop(now + 0.5); eng2.stop(now + 0.5);
-
-                // Cute horn beep beep!
-                const horn1 = this.context.createOscillator();
-                const horn2 = this.context.createOscillator();
-                const hornGain = this.context.createGain();
-
-                horn1.type = 'sine';
-                horn1.frequency.value = 350;
-                horn2.type = 'sine';
-                horn2.frequency.value = 440;
-
-                hornGain.gain.setValueAtTime(0, now + 0.4);
-                hornGain.gain.linearRampToValueAtTime(0.12, now + 0.42);
-                hornGain.gain.linearRampToValueAtTime(0, now + 0.55);
-                hornGain.gain.linearRampToValueAtTime(0.12, now + 0.6);
-                hornGain.gain.linearRampToValueAtTime(0, now + 0.73);
-
-                horn1.connect(hornGain);
-                horn2.connect(hornGain);
-                hornGain.connect(this.context.destination);
-
-                horn1.start(now + 0.4); horn2.start(now + 0.4);
-                horn1.stop(now + 0.8); horn2.stop(now + 0.8);
-            }
-
-            playBigTruckHorn(now) {
-                // Mack - BIG TRUCK air horn! Deep and powerful
-                const osc1 = this.context.createOscillator();
-                const osc2 = this.context.createOscillator();
-                const osc3 = this.context.createOscillator();
-                const osc4 = this.context.createOscillator();
-                const gainNode = this.context.createGain();
-                const filter = this.context.createBiquadFilter();
-
-                // Deep air horn - multiple harmonics
-                osc1.type = 'sine';
-                osc1.frequency.value = 130; // Base note
-
-                osc2.type = 'sine';
-                osc2.frequency.value = 165; // Third
-
-                osc3.type = 'sine';
-                osc3.frequency.value = 195; // Fifth
-
-                osc4.type = 'triangle';
-                osc4.frequency.value = 65; // Sub bass
-
-                filter.type = 'lowpass';
-                filter.frequency.value = 400;
-                filter.Q.value = 1;
-
-                // Big truck horn envelope
-                gainNode.gain.setValueAtTime(0, now);
-                gainNode.gain.linearRampToValueAtTime(0.15, now + 0.08);
-                gainNode.gain.setValueAtTime(0.15, now + 0.6);
-                gainNode.gain.linearRampToValueAtTime(0, now + 0.9);
-
-                osc1.connect(filter);
-                osc2.connect(filter);
-                osc3.connect(filter);
-                osc4.connect(filter);
-                filter.connect(gainNode);
-                gainNode.connect(this.context.destination);
-
-                osc1.start(now); osc2.start(now); osc3.start(now); osc4.start(now);
-                osc1.stop(now + 1.0); osc2.stop(now + 1.0); osc3.stop(now + 1.0); osc4.stop(now + 1.0);
-            }
-
-            playBoostSound() {
-                if (!this.enabled) return;
-                this.ensureReady();
-                if (!this.context) return;
-
-                const now = this.context.currentTime;
-                const osc = this.context.createOscillator();
-                const osc2 = this.context.createOscillator();
-                const gain = this.context.createGain();
-                const filter = this.context.createBiquadFilter();
-
-                // Whoosh sound - exciting but not harsh
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(100, now);
-                osc.frequency.exponentialRampToValueAtTime(300, now + 0.2);
-                osc.frequency.exponentialRampToValueAtTime(150, now + 0.5);
-
-                osc2.type = 'sine';
-                osc2.frequency.setValueAtTime(200, now);
-                osc2.frequency.exponentialRampToValueAtTime(600, now + 0.2);
-
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(500, now);
-                filter.frequency.linearRampToValueAtTime(1200, now + 0.15);
-                filter.frequency.linearRampToValueAtTime(400, now + 0.5);
-
-                gain.gain.setValueAtTime(0, now);
-                gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
-                gain.gain.linearRampToValueAtTime(0.06, now + 0.3);
-                gain.gain.linearRampToValueAtTime(0, now + 0.6);
-
-                osc.connect(filter);
-                osc2.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.context.destination);
-
-                osc.start(now);
-                osc2.start(now);
-                osc.stop(now + 0.7);
-                osc2.stop(now + 0.7);
-            }
-
-            // Light, magical sparkle sound for family photos
-            playFamilySparkle() {
-                if (!this.enabled) return;
-                this.ensureReady();
-                if (!this.context) return;
-
-                const now = this.context.currentTime;
-
-                // Light, twinkling sparkle sounds - like fairy dust
-                const notes = [784, 988, 1175, 1319, 1568]; // High, magical notes
-
-                notes.forEach((freq, i) => {
-                    const osc = this.context.createOscillator();
-                    const gain = this.context.createGain();
-
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-
-                    const startTime = now + (i * 0.06);
-                    gain.gain.setValueAtTime(0, startTime);
-                    gain.gain.linearRampToValueAtTime(0.05, startTime + 0.02);
-                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
-
-                    osc.connect(gain);
-                    gain.connect(this.context.destination);
-
-                    osc.start(startTime);
-                    osc.stop(startTime + 0.5);
-                });
-            }
-
-            toggle() {
-                this.enabled = !this.enabled;
-                return this.enabled;
-            }
-        }
-
-        // ============================================
-        // RACING CAR CLASS
-        // ============================================
-        class RacingCar {
-            constructor(type, imageSrc, track, audio, raceManager) {
-                this.type = type;
-                this.track = track;
-                this.audio = audio;
-                this.raceManager = raceManager;
-
-                // Racing properties
-                this.lane = { mcqueen: 1, mater: 2, mack: 0 }[type] || 1;
-                this.x = 0;
-                this.baseSpeed = { mcqueen: 1.2, mater: 0.9, mack: 0.75 }[type] || 1;
-                this.currentSpeed = this.baseSpeed;
-                this.targetSpeed = this.baseSpeed;
-                this.boosting = false;
-                this.position = 0;
-
-                // Create element
-                this.element = document.createElement('div');
-                this.element.className = 'car';
-                this.element.innerHTML = `
-                    <img src="${imageSrc}" alt="${type}">
-                    <div class="position-badge" id="pos-${type}">1</div>
-                `;
-
-                const sizes = { mcqueen: '16vmin', mack: '28vmin', mater: '14vmin' };
-                this.element.style.height = sizes[type] || '14vmin';
-
-                // Random start position (staggered start)
-                const startOffset = { mcqueen: 0.1, mater: 0.15, mack: 0.05 }[type] || 0.1;
-                this.x = window.innerWidth * (1 + startOffset);
-
-                this.updatePosition();
-                track.appendChild(this.element);
-                this.setupInteraction();
-            }
-
-            updatePosition() {
-                this.element.style.left = this.x + 'px';
-                // Lane positions (percentage of track height)
-                const laneY = [5, 35, 65][this.lane] || 35;
-                this.element.style.top = laneY + '%';
-            }
-
-            updatePositionBadge(pos) {
-                const badge = this.element.querySelector('.position-badge');
-                badge.textContent = pos;
-            }
-
-            setupInteraction() {
-                const handleTap = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    // Visual feedback - gentle grow
-                    this.element.classList.add('tapped');
-                    setTimeout(() => this.element.classList.remove('tapped'), 250);
-
-                    // Play character's engine sound
-                    this.audio.playEngineSound(this.type);
-
-                    // Boost the car!
-                    this.boost();
-                };
-
-                this.element.addEventListener('touchstart', handleTap, { passive: false });
-                this.element.addEventListener('click', handleTap);
-            }
-
-            boost() {
-                if (this.boosting) return;
-                this.boosting = true;
-                this.element.classList.add('boosting');
-                this.targetSpeed = this.baseSpeed * 2.5;
-                this.audio.playBoostSound();
-
-                setTimeout(() => {
-                    this.boosting = false;
-                    this.element.classList.remove('boosting');
-                    this.targetSpeed = this.baseSpeed;
-                }, 1500);
-            }
-
-            update(deltaTime) {
-                // Smooth speed changes
-                this.currentSpeed += (this.targetSpeed - this.currentSpeed) * 0.1;
-
-                // Add some natural variation
-                if (!this.boosting && Math.random() < 0.02) {
-                    this.targetSpeed = this.baseSpeed * (0.7 + Math.random() * 0.6);
-                }
-
-                // Move car (right to left)
-                const pixelsPerSecond = this.currentSpeed * 150;
-                this.x -= pixelsPerSecond * deltaTime;
-
-                // Wrap around
-                const carWidth = this.element.offsetWidth || 200;
-                if (this.x < -carWidth) {
-                    this.x = window.innerWidth + carWidth + Math.random() * 100;
-                    // Random lane change on wrap
-                    if (Math.random() < 0.5) {
-                        this.changeLane();
-                    }
-                }
-
-                // Occasional lane changes during race
-                if (Math.random() < 0.003) {
-                    this.changeLane();
-                }
-
-                // Random boost (rare)
-                if (!this.boosting && Math.random() < 0.001) {
-                    this.boost();
-                }
-
-                this.updatePosition();
-            }
-
-            changeLane() {
-                const newLane = Math.floor(Math.random() * 3);
-                if (newLane !== this.lane) {
-                    this.lane = newLane;
-                }
-            }
-        }
-
-        // ============================================
-        // RACE MANAGER
-        // ============================================
-        class RaceManager {
-            constructor(cars) {
-                this.cars = cars;
-                this.lastTime = 0;
-                this.running = false;
-            }
-
-            start() {
-                this.running = true;
-                this.lastTime = performance.now();
-                this.update();
-            }
-
-            update() {
-                if (!this.running) return;
-
-                const now = performance.now();
-                const deltaTime = (now - this.lastTime) / 1000;
-                this.lastTime = now;
-
-                // Update all cars
-                this.cars.forEach(car => car.update(deltaTime));
-
-                // Calculate positions based on X (leftmost = winning)
-                const sorted = [...this.cars].sort((a, b) => a.x - b.x);
-                sorted.forEach((car, index) => {
-                    car.position = index + 1;
-                    car.updatePositionBadge(index + 1);
-                });
-
-                // Update race status
-                const leader = sorted[0];
-                const statusEl = document.getElementById('raceStatus');
-                const names = { mcqueen: 'McQueen', mater: 'Mater', mack: 'Mack' };
-                statusEl.textContent = `${names[leader.type]} is leading!`;
-
-                requestAnimationFrame(() => this.update());
-            }
-        }
-
-        // ============================================
-        // FAMILY PHOTO CLASS
-        // ============================================
-        class FamilyPhoto {
-            constructor(name, imageSrc, container, audio) {
-                this.name = name;
-                this.audio = audio;
-
-                this.wrapper = document.createElement('div');
-                this.wrapper.className = 'photo-wrapper';
-
-                this.element = document.createElement('div');
-                this.element.className = 'family-photo';
-                this.element.innerHTML = `<img src="${imageSrc}" alt="${name}">`;
-
-                const label = document.createElement('div');
-                label.className = 'photo-name';
-                label.textContent = name;
-
-                this.wrapper.appendChild(this.element);
-                this.wrapper.appendChild(label);
-                container.appendChild(this.wrapper);
-
-                const handleTap = (e) => {
-                    e.preventDefault();
-                    this.element.classList.add('glowing');
-
-                    // Light sparkle sound
-                    this.audio.playFamilySparkle();
-
-                    // Create hearts and stars!
-                    this.createParticles();
-
-                    setTimeout(() => this.element.classList.remove('glowing'), 800);
-                };
-
-                this.element.addEventListener('touchstart', handleTap, { passive: false });
-                this.element.addEventListener('click', handleTap);
-            }
-
-            createParticles() {
-                const particles = ['❤️', '⭐', '💖', '✨', '💕', '🌟', '💗', '⭐'];
-                const count = 8;
-
-                for (let i = 0; i < count; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.textContent = particles[i % particles.length];
-
-                    // Random position around the photo
-                    const angle = (i / count) * Math.PI * 2;
-                    const distance = 20 + Math.random() * 30;
-                    const x = Math.cos(angle) * distance;
-                    const y = Math.sin(angle) * distance;
-
-                    particle.style.left = `calc(50% + ${x}px)`;
-                    particle.style.top = `calc(30% + ${y}px)`;
-                    particle.style.animationDelay = `${i * 0.08}s`;
-
-                    this.wrapper.appendChild(particle);
-
-                    // Remove particle after animation
-                    setTimeout(() => particle.remove(), 1600);
-                }
-            }
-        }
-
-        // ============================================
-        // START APP
-        // ============================================
-        let audio = new AudioEngine();
-
-        function startApp() {
-            document.getElementById('setupOverlay').classList.add('hidden');
-            document.getElementById('appContainer').classList.remove('hidden');
-
-            // Background
-            if (storedImages.background) {
-                document.getElementById('background').style.backgroundImage = `url("${storedImages.background}")`;
-            }
-
-            const track = document.getElementById('raceTrack');
-            const familyBar = document.getElementById('familyBar');
-
-            // Init audio on first interaction
-            document.addEventListener('touchstart', () => audio.init(), { once: true });
-            document.addEventListener('click', () => audio.init(), { once: true });
-
-            // Create racing cars
-            const cars = [];
-            if (storedImages.mcqueen) cars.push(new RacingCar('mcqueen', storedImages.mcqueen, track, audio, null));
-            if (storedImages.mack) cars.push(new RacingCar('mack', storedImages.mack, track, audio, null));
-            if (storedImages.mater) cars.push(new RacingCar('mater', storedImages.mater, track, audio, null));
-
-            // Start race
-            if (cars.length > 0) {
-                const raceManager = new RaceManager(cars);
-                raceManager.start();
-            }
-
-            // Family photos
-            if (storedImages.mason) new FamilyPhoto('Mason', storedImages.mason, familyBar, audio);
-            if (storedImages.lola) new FamilyPhoto('Lola', storedImages.lola, familyBar, audio);
-            if (storedImages.mam) new FamilyPhoto('Mam', storedImages.mam, familyBar, audio);
-            if (storedImages.dad) new FamilyPhoto('Dad', storedImages.dad, familyBar, audio);
-
-            // Sound toggle
-            const soundToggle = document.getElementById('soundToggle');
-            const handleSound = (e) => {
-                e.preventDefault();
-                audio.init();
-                const enabled = audio.toggle();
-                soundToggle.textContent = enabled ? '🔊' : '🔇';
-                soundToggle.classList.toggle('muted', !enabled);
-            };
-            soundToggle.addEventListener('touchstart', handleSound, { passive: false });
-            soundToggle.addEventListener('click', handleSound);
-
-            // Settings
-            document.getElementById('settingsBtn').addEventListener('click', () => location.reload());
-        }
-
-        // ============================================
-        // INIT
-        // ============================================
-        loadStoredImages();
-        createSetupUI();
-        updateProgress();
-
-        document.getElementById('startBtn').addEventListener('click', startApp);
-        document.getElementById('resetBtn').addEventListener('click', () => {
-            if (confirm('Remove all images?')) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload();
-            }
-        });
-
-        // Auto-start if images loaded
-        if (Object.keys(storedImages).length >= 4) {
-            startApp();
-        }
-    </script>
+        setTimeout(() => photo.classList.remove('glow'), 600);
+    };
+}
+
+// Start app
+function startApp() {
+    document.getElementById('setup').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+
+    if (images.background) {
+        document.getElementById('bg').style.backgroundImage = `url(${images.background})`;
+    }
+
+    if (images.mcqueen) createCar('mcqueen', images.mcqueen);
+    if (images.mack) createCar('mack', images.mack);
+    if (images.mater) createCar('mater', images.mater);
+
+    if (images.mason) createFamily('Mason', images.mason);
+    if (images.lola) createFamily('Lola', images.lola);
+    if (images.mam) createFamily('Mam', images.mam);
+    if (images.dad) createFamily('Dad', images.dad);
+
+    animating = true;
+    animate();
+}
+
+// Init
+buildSetup();
+
+document.getElementById('startBtn').onclick = startApp;
+
+document.getElementById('backBtn').onclick = () => location.reload();
+
+document.getElementById('soundBtn').onclick = function() {
+    initAudio();
+    soundOn = !soundOn;
+    this.textContent = soundOn ? '🔊' : '🔇';
+};
+
+// Init audio on any touch
+document.addEventListener('touchstart', initAudio, {once: true});
+</script>
 </body>
 </html>
