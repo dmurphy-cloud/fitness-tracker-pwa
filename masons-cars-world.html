@@ -197,7 +197,7 @@
             <input type="file" accept="image/*" onchange="addImg(this,'dad')">
         </div>
     </div>
-    <button id="startBtn" disabled onclick="startApp()">Start Racing!</button>
+    <button id="startBtn" disabled ontouchend="startApp()" onclick="startApp()">Start Racing!</button>
 </div>
 
 <div id="app">
@@ -238,7 +238,11 @@ function addImg(input, id) {
 
 function checkReady() {
     var count = Object.keys(imgs).length;
-    document.getElementById('startBtn').disabled = (count < 4);
+    var btn = document.getElementById('startBtn');
+    if (count >= 1) {
+        btn.disabled = false;
+        btn.style.background = '#ff6b6b';
+    }
 }
 
 function startApp() {
